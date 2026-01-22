@@ -2,6 +2,7 @@ using DeviceDiagnostics.Api.Infrastructure;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
+using System.IO;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,6 +22,15 @@ builder.Services.Configure<ApiBehaviorOptions>(options =>
         });
     };
 });
+
+
+var dataDir = Path.Combine(builder.Environment.ContentRootPath, "data");
+Directory.CreateDirectory(dataDir); // idempotent: ден ук№ей бн хр№счей
+
+var dbPath = Path.Combine(dataDir, "device-diagnostics.db");
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseSqlite($"Data Source={dbPath}"));
+
 
 var app = builder.Build();
 
