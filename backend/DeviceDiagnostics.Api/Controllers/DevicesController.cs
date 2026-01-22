@@ -12,10 +12,8 @@ public class DevicesController : ControllerBase
 {
     private readonly AppDbContext _db;
 
-    public DevicesController(AppDbContext db)
-    {
-        _db = db;
-    }
+    public DevicesController(AppDbContext db) => _db = db;
+    
 
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Device))]

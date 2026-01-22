@@ -22,5 +22,7 @@ public class AppDbContext : DbContext
             .HasOne(e => e.Device)
             .WithMany()
             .HasForeignKey(e => e.DeviceId);
+
+        modelBuilder.Entity<Telemetry>().HasIndex(t => new { t.DeviceId, t.Timestamp });
     }
 }
