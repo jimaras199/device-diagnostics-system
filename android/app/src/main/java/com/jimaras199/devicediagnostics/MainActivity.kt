@@ -4,8 +4,12 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import com.jimaras199.devicediagnostics.ui.models.DeviceListItem
-import com.jimaras199.devicediagnostics.ui.screens.DevicesScreen
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.collectAsState
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.jimaras199.devicediagnostics.ui.screens.devices.DevicesScreen
 import com.jimaras199.devicediagnostics.ui.theme.DeviceDiagnosticsTheme
 
 class MainActivity : ComponentActivity() {
@@ -13,16 +17,22 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
-        val devices = listOf(
-            DeviceListItem(1, "Living Room Sensor", "ESP32", "2026-01-26T18:20:00Z"),
-            DeviceListItem(2, "Garage Gateway", "RPI", "2026-01-26T18:18:00Z"),
-            DeviceListItem(3, "Office Phone", "OnePlus", "2026-01-26T18:10:00Z")
-        )
-
         setContent {
             DeviceDiagnosticsTheme {
-                DevicesScreen(devices = devices)
+                DevicesRoute()
             }
         }
     }
+}
+
+@Composable
+fun DevicesRoute(vm: DevicesViewModel = viewModel()) {
+    val state by vm.uiState.collectAsState()
+    DevicesScreen(state = state)
+}
+
+@Preview(showBackground = true)
+@Composable
+fun DefaultPreview(){
+    DevicesRoute()
 }
