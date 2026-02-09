@@ -11,7 +11,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.material3.Text
-import com.jimaras199.devicediagnostics.DevicesUiState
 import com.jimaras199.devicediagnostics.ui.components.DeviceRow
 import com.jimaras199.devicediagnostics.ui.components.DevicesTopBar
 

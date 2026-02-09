@@ -2,15 +2,11 @@ package com.jimaras199.devicediagnostics
 
 import androidx.lifecycle.ViewModel
 import com.jimaras199.devicediagnostics.ui.models.DeviceListItem
+import com.jimaras199.devicediagnostics.ui.screens.devices.DevicesUiState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
-sealed interface DevicesUiState {
-    data object Loading : DevicesUiState
-    data class Success(val devices: List<DeviceListItem>) : DevicesUiState
-    data class Error(val message: String) : DevicesUiState
-}
 
 class DevicesViewModel : ViewModel() {
 
