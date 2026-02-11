@@ -7,15 +7,18 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.compose.material3.Text
 import com.jimaras199.devicediagnostics.ui.components.DeviceRow
 import com.jimaras199.devicediagnostics.ui.components.DevicesTopBar
 
 @Composable
-fun DevicesScreen(state: DevicesUiState) {
+fun DevicesScreen(
+    state: DevicesUiState,
+    onDeviceClick: (Int, String) -> Unit
+) {
     Scaffold(
         topBar = { DevicesTopBar(title = "Devices") }
     ) { padding ->
@@ -26,7 +29,6 @@ fun DevicesScreen(state: DevicesUiState) {
                     modifier = Modifier.padding(padding).padding(12.dp)
                 )
             }
-
             is DevicesUiState.Error -> {
                 Text(
                     text = "Error: ${state.message}",
@@ -42,7 +44,10 @@ fun DevicesScreen(state: DevicesUiState) {
                     verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
                     items(state.devices) { device ->
-                        DeviceRow(device)
+                        DeviceRow(
+                            device = device,
+                            onClick = { onDeviceClick(device.id, device.name) }
+                        )
                     }
                 }
             }

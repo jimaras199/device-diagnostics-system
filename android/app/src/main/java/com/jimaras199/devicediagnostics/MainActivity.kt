@@ -9,6 +9,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.jimaras199.devicediagnostics.ui.navigation.AppNavHost
 import com.jimaras199.devicediagnostics.ui.screens.devices.DevicesScreen
 import com.jimaras199.devicediagnostics.ui.screens.devices.DevicesViewModel
 import com.jimaras199.devicediagnostics.ui.theme.DeviceDiagnosticsTheme
@@ -20,20 +21,14 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             DeviceDiagnosticsTheme {
-                DevicesRoute()
+                AppNavHost()
             }
         }
     }
 }
 
-@Composable
-fun DevicesRoute(vm: DevicesViewModel = viewModel()) {
-    val state by vm.uiState.collectAsState()
-    DevicesScreen(state = state)
-}
-
 @Preview(showBackground = true)
 @Composable
 fun DefaultPreview(){
-    DevicesRoute()
+    AppNavHost()
 }

@@ -1,5 +1,6 @@
 package com.jimaras199.devicediagnostics.ui.components
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -13,10 +14,11 @@ import androidx.compose.ui.unit.dp
 import com.jimaras199.devicediagnostics.ui.models.DeviceListItem
 
 @Composable
-fun DeviceRow(device: DeviceListItem) {
+fun DeviceRow(device: DeviceListItem, onClick: () -> Unit) {
     Card(
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
         modifier = Modifier.fillMaxWidth()
+            .clickable { onClick() }
     ) {
         Column(modifier = Modifier.padding(12.dp)) {
             Text(text = device.name, style = MaterialTheme.typography.titleMedium)
