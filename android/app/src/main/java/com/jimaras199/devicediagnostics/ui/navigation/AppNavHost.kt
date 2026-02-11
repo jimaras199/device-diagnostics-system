@@ -6,6 +6,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.jimaras199.devicediagnostics.ui.screens.deviceDetails.DeviceDetailsRoute
 import com.jimaras199.devicediagnostics.ui.screens.devices.DevicesRoute
 import com.jimaras199.devicediagnostics.ui.screens.deviceDetails.DeviceDetailsScreen
 
@@ -20,21 +21,19 @@ fun AppNavHost() {
         composable(Routes.DEVICES) {
             DevicesRoute(
                 onDeviceClick = { deviceId, deviceName ->
-                    navController.navigate("${Routes.DEVICE_DETAILS}/$deviceId/$deviceName")
+                    navController.navigate("${Routes.DEVICE_DETAILS}/$deviceId")
                 }
             )
         }
 
         composable(
-            route = "${Routes.DEVICE_DETAILS}/{deviceId}/{deviceName}",
+            route = "${Routes.DEVICE_DETAILS}/{deviceId}",
             arguments = listOf(
                 navArgument("deviceId") { type = NavType.IntType },
-                navArgument("deviceName") { type = NavType.StringType }
             )
         ) { backStackEntry ->
             val id = backStackEntry.arguments?.getInt("deviceId") ?: 0
-            val name = backStackEntry.arguments?.getString("deviceName") ?: ""
-            DeviceDetailsScreen(deviceId = id, deviceName = name)
+            DeviceDetailsRoute(deviceId = id)
         }
     }
 }

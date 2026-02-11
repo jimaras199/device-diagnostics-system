@@ -8,25 +8,35 @@ import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 
 object ApiClient {
+
     private const val BASE_URL = "http://192.168.1.12:5275/"
-    fun createDashboardApi(): DashboardApi {
+
+    private val moshi: Moshi by lazy {
+        Moshi.Builder()
+            .add(KotlinJsonAdapterFactory())
+            .build()
+    }
+
+    private val okHttp: OkHttpClient by lazy {
         val logging = HttpLoggingInterceptor().apply {
             level = HttpLoggingInterceptor.Level.BODY
         }
-
-        val client = OkHttpClient.Builder()
+        OkHttpClient.Builder()
             .addInterceptor(logging)
             .build()
+    }
 
-        val moshi = Moshi.Builder()
-            .add(KotlinJsonAdapterFactory())
-            .build()
-
-        return Retrofit.Builder()
+    private val retrofit: Retrofit by lazy {
+        Retrofit.Builder()
             .baseUrl(BASE_URL)
-            .client(client)
+            .client(okHttp)
             .addConverterFactory(MoshiConverterFactory.create(moshi))
             .build()
-            .create(DashboardApi::class.java)
     }
+
+    fun createDashboardApi(): DashboardApi =
+        retrofit.create(DashboardApi::class.java)
+
+    fun createDevicesApi(): DevicesApi =
+        retrofit.create(DevicesApi::class.java)
 }
