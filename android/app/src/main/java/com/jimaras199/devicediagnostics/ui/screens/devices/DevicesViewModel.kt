@@ -1,25 +1,36 @@
-package com.jimaras199.devicediagnostics
+package com.jimaras199.devicediagnostics.ui.screens.devices
 
 import androidx.lifecycle.ViewModel
-import com.jimaras199.devicediagnostics.ui.models.DeviceListItem
-import com.jimaras199.devicediagnostics.ui.screens.devices.DevicesUiState
+import androidx.lifecycle.viewModelScope
+import com.jimaras199.devicediagnostics.data.api.ApiClient
+import com.jimaras199.devicediagnostics.data.model.toDeviceListItem
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-
+import kotlinx.coroutines.launch
 
 class DevicesViewModel : ViewModel() {
+
+    private val api = ApiClient.createDashboardApi()
 
     private val _uiState = MutableStateFlow<DevicesUiState>(DevicesUiState.Loading)
     val uiState: StateFlow<DevicesUiState> = _uiState.asStateFlow()
 
     init {
-        _uiState.value = DevicesUiState.Success(
-            listOf(
-                DeviceListItem(1, "Living Room Sensor", "ESP32", "2026-01-26T18:20:00Z"),
-                DeviceListItem(2, "Garage Gateway", "RPI", "2026-01-26T18:18:00Z"),
-                DeviceListItem(3, "Office Phone", "OnePlus", "2026-01-26T18:10:00Z")
-            )
-        )
+        loadDevices()
+    }
+
+    private fun loadDevices() {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val dtoItems = api.getDevicesDashboard(metricsPerDevice = 5)
+                val uiItems = dtoItems.map { it.toDeviceListItem() }
+                _uiState.value = DevicesUiState.Success(uiItems)
+            } catch (ex: Exception) {
+                val msg = ex.localizedMessage ?: ex.toString()
+                _uiState.value = DevicesUiState.Error(msg)
+            }
+        }
     }
 }
