@@ -2,6 +2,7 @@ package com.jimaras199.devicediagnostics.ui.screens.deviceDetails
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Button
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -10,7 +11,7 @@ import androidx.compose.ui.unit.dp
 import com.jimaras199.devicediagnostics.ui.components.DevicesTopBar
 
 @Composable
-fun DeviceDetailsScreen(state: DeviceDetailsUiState) {
+fun DeviceDetailsScreen(state: DeviceDetailsUiState, onRetry: () -> Unit) {
     Scaffold(
         topBar = { DevicesTopBar(title = "Device Details") }
     ) { padding ->
@@ -19,7 +20,10 @@ fun DeviceDetailsScreen(state: DeviceDetailsUiState) {
         ) {
             when (state) {
                 DeviceDetailsUiState.Loading -> Text("Loading…")
-                is DeviceDetailsUiState.Error -> Text("Error: ${state.message}")
+                is DeviceDetailsUiState.Error -> {
+                    Text("Error: ${state.message}")
+                    Button(onClick = onRetry) { Text("Retry") }
+                }
                 is DeviceDetailsUiState.Success -> {
                     val d = state.device
                     Text("ID: ${d.id}")

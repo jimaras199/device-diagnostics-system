@@ -13,6 +13,7 @@ fun DevicesRoute(
     val state by vm.uiState.collectAsState()
     DevicesScreen(
         state = state,
-        onDeviceClick = onDeviceClick
+        onDeviceClick = onDeviceClick,
+        onRefresh = { vm.refresh() }
     )
 }

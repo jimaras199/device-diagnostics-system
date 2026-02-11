@@ -29,5 +29,5 @@ fun DeviceDetailsRoute(deviceId: Int) {
         vm.load(deviceId)
     }
 
-    DeviceDetailsScreen(state = state)
+    DeviceDetailsScreen(state = state, onRetry = { vm.load(deviceId)})
 }

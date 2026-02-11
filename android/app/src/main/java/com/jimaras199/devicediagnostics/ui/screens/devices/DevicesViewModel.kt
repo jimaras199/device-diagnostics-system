@@ -13,23 +13,36 @@ import kotlinx.coroutines.launch
 class DevicesViewModel : ViewModel() {
 
     private val api = ApiClient.createDashboardApi()
-
     private val _uiState = MutableStateFlow<DevicesUiState>(DevicesUiState.Loading)
     val uiState: StateFlow<DevicesUiState> = _uiState.asStateFlow()
 
-    init {
-        loadDevices()
-    }
+    init { refresh() }
 
-    private fun loadDevices() {
+    fun refresh() {
+        val current = _uiState.value
+
+        if (current is DevicesUiState.Success) {
+            _uiState.value = current.copy(isRefreshing = true)
+        } else {
+            _uiState.value = DevicesUiState.Loading
+        }
+
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 val dtoItems = api.getDevicesDashboard(metricsPerDevice = 5)
                 val uiItems = dtoItems.map { it.toDeviceListItem() }
-                _uiState.value = DevicesUiState.Success(uiItems)
+
+                _uiState.value = DevicesUiState.Success(
+                    devices = uiItems,
+                    isRefreshing = false
+                )
             } catch (ex: Exception) {
-                val msg = ex.localizedMessage ?: ex.toString()
-                _uiState.value = DevicesUiState.Error(msg)
+                val now = _uiState.value
+                if (now is DevicesUiState.Success) {
+                    _uiState.value = now.copy(isRefreshing = false)
+                } else {
+                    _uiState.value = DevicesUiState.Error(ex.localizedMessage ?: ex.toString())
+                }
             }
         }
     }
