@@ -20,6 +20,7 @@ fun AppNavHost(container: AppContainer) {
     ) {
         composable(Routes.DEVICES) {
             DevicesRoute(
+                container = container,
                 onDeviceClick = { deviceId, deviceName ->
                     navController.navigate("${Routes.DEVICE_DETAILS}/$deviceId")
                 }
@@ -33,7 +34,8 @@ fun AppNavHost(container: AppContainer) {
             )
         ) { backStackEntry ->
             val id = backStackEntry.arguments?.getInt("deviceId") ?: 0
-            DeviceDetailsRoute(deviceId = id)
+            DeviceDetailsRoute(container = container,
+                deviceId = id)
         }
     }
 }

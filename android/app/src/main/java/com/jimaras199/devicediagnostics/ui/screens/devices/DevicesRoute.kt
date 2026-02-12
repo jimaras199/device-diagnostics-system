@@ -4,9 +4,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.jimaras199.devicediagnostics.di.AppContainer
 
 @Composable
 fun DevicesRoute(
+    container: AppContainer,
     onDeviceClick: (Int, String) -> Unit,
     vm: DevicesViewModel = viewModel()
 ) {

@@ -9,9 +9,10 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.jimaras199.devicediagnostics.data.api.ApiClient
 import com.jimaras199.devicediagnostics.data.repository.DevicesRepositoryImpl
+import com.jimaras199.devicediagnostics.di.AppContainer
 
 @Composable
-fun DeviceDetailsRoute(deviceId: Int) {
+fun DeviceDetailsRoute(container: AppContainer, deviceId: Int) {
     val repo = DevicesRepositoryImpl(ApiClient.createDevicesApi())
 
     val vm: DeviceDetailsViewModel = viewModel(
