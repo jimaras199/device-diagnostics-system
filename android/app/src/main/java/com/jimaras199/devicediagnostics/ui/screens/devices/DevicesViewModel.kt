@@ -2,17 +2,15 @@ package com.jimaras199.devicediagnostics.ui.screens.devices
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.jimaras199.devicediagnostics.data.api.ApiClient
 import com.jimaras199.devicediagnostics.data.model.toDeviceListItem
+import com.jimaras199.devicediagnostics.data.repository.DashboardRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-class DevicesViewModel : ViewModel() {
-
-    private val api = ApiClient.createDashboardApi()
+class DevicesViewModel(private val repo: DashboardRepository) : ViewModel() {
     private val _uiState = MutableStateFlow<DevicesUiState>(DevicesUiState.Loading)
     val uiState: StateFlow<DevicesUiState> = _uiState.asStateFlow()
 
@@ -29,7 +27,7 @@ class DevicesViewModel : ViewModel() {
 
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                val dtoItems = api.getDevicesDashboard(metricsPerDevice = 5)
+                val dtoItems = repo.getDevicesDashboard(metricsPerDevice = 5)
                 val uiItems = dtoItems.map { it.toDeviceListItem() }
 
                 _uiState.value = DevicesUiState.Success(

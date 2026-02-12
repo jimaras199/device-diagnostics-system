@@ -5,13 +5,17 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.jimaras199.devicediagnostics.di.AppContainer
+import com.jimaras199.devicediagnostics.di.DevicesViewModelFactory
 
 @Composable
 fun DevicesRoute(
     container: AppContainer,
-    onDeviceClick: (Int, String) -> Unit,
-    vm: DevicesViewModel = viewModel()
+    onDeviceClick: (Int, String) -> Unit
 ) {
+    val vm: DevicesViewModel = viewModel(
+        factory = DevicesViewModelFactory(container.dashboardRepository)
+    )
+
     val state by vm.uiState.collectAsState()
     DevicesScreen(
         state = state,
