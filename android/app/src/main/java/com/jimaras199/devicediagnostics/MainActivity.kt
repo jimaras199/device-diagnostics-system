@@ -4,14 +4,9 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.collectAsState
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.compose.runtime.remember
+import com.jimaras199.devicediagnostics.di.AppContainer
 import com.jimaras199.devicediagnostics.ui.navigation.AppNavHost
-import com.jimaras199.devicediagnostics.ui.screens.devices.DevicesScreen
-import com.jimaras199.devicediagnostics.ui.screens.devices.DevicesViewModel
 import com.jimaras199.devicediagnostics.ui.theme.DeviceDiagnosticsTheme
 
 class MainActivity : ComponentActivity() {
@@ -21,14 +16,9 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             DeviceDiagnosticsTheme {
-                AppNavHost()
+                val container = remember { AppContainer() }
+                AppNavHost(container)
             }
         }
     }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun DefaultPreview(){
-    AppNavHost()
 }

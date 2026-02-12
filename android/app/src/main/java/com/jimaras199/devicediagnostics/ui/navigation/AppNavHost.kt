@@ -6,12 +6,12 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.jimaras199.devicediagnostics.di.AppContainer
 import com.jimaras199.devicediagnostics.ui.screens.deviceDetails.DeviceDetailsRoute
 import com.jimaras199.devicediagnostics.ui.screens.devices.DevicesRoute
-import com.jimaras199.devicediagnostics.ui.screens.deviceDetails.DeviceDetailsScreen
 
 @Composable
-fun AppNavHost() {
+fun AppNavHost(container: AppContainer) {
     val navController = rememberNavController()
 
     NavHost(
