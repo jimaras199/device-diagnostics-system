@@ -4,24 +4,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.jimaras199.devicediagnostics.data.api.ApiClient
-import com.jimaras199.devicediagnostics.data.repository.DevicesRepositoryImpl
 import com.jimaras199.devicediagnostics.di.AppContainer
+import com.jimaras199.devicediagnostics.di.DeviceDetailsViewModelFactory
 
 @Composable
 fun DeviceDetailsRoute(container: AppContainer, deviceId: Int) {
-    val repo = DevicesRepositoryImpl(ApiClient.createDevicesApi())
 
     val vm: DeviceDetailsViewModel = viewModel(
-        factory = object : ViewModelProvider.Factory {
-            @Suppress("UNCHECKED_CAST")
-            override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                return DeviceDetailsViewModel(repo) as T
-            }
-        }
+        factory = DeviceDetailsViewModelFactory(container.devicesRepository)
     )
 
     val state by vm.uiState.collectAsState()
