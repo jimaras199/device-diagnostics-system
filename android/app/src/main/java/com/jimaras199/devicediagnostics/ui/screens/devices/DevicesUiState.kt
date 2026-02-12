@@ -7,5 +7,6 @@ sealed interface DevicesUiState {
     data class Error(val message: String) : DevicesUiState
     data class Success(
         val devices: List<DeviceListItem>,
-        val isRefreshing: Boolean = false
+        val isRefreshing: Boolean = false,
+        val transientError: String? = null
     ) : DevicesUiState}

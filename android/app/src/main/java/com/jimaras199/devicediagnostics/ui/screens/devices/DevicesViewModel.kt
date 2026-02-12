@@ -37,14 +37,15 @@ class DevicesViewModel(
 
                 _uiState.value = DevicesUiState.Success(
                     devices = uiItems,
-                    isRefreshing = false
+                    isRefreshing = false,
+                    transientError = null
                 )
             } catch (ex: Exception) {
                 val msg = ex.localizedMessage ?: ex.toString()
 
                 val now = _uiState.value
                 _uiState.value = if (now is DevicesUiState.Success) {
-                    now.copy(isRefreshing = false)
+                    now.copy(isRefreshing = false,transientError = msg)
                 } else {
                     DevicesUiState.Error(msg)
                 }

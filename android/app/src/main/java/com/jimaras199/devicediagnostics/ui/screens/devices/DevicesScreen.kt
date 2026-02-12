@@ -62,6 +62,14 @@ fun DevicesScreen(
                         contentPadding = PaddingValues(12.dp),
                         verticalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
+                        state.transientError?.let { msg ->
+                            item {
+                                Text(
+                                    text = "Refresh failed: $msg",
+                                    modifier = Modifier.padding(bottom = 4.dp)
+                                )
+                            }
+                        }
                         items(state.devices) { device ->
                             DeviceRow(
                                 device = device,
