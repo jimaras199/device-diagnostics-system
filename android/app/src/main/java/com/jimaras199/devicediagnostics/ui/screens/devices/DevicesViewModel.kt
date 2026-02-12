@@ -9,8 +9,12 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
-class DevicesViewModel(private val repo: DashboardRepository) : ViewModel() {
+class DevicesViewModel(
+    private val repo: DashboardRepository
+) : ViewModel() {
+
     private val _uiState = MutableStateFlow<DevicesUiState>(DevicesUiState.Loading)
     val uiState: StateFlow<DevicesUiState> = _uiState.asStateFlow()
 
@@ -19,27 +23,30 @@ class DevicesViewModel(private val repo: DashboardRepository) : ViewModel() {
     fun refresh() {
         val current = _uiState.value
 
-        if (current is DevicesUiState.Success) {
-            _uiState.value = current.copy(isRefreshing = true)
-        } else {
-            _uiState.value = DevicesUiState.Loading
+        _uiState.value = when (current) {
+            is DevicesUiState.Success -> current.copy(isRefreshing = true)
+            else -> DevicesUiState.Loading
         }
 
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             try {
-                val dtoItems = repo.getDevicesDashboard(metricsPerDevice = 5)
-                val uiItems = dtoItems.map { it.toDeviceListItem() }
+                val uiItems = withContext(Dispatchers.IO) {
+                    repo.getDevicesDashboard(metricsPerDevice = 5)
+                        .map { it.toDeviceListItem() }
+                }
 
                 _uiState.value = DevicesUiState.Success(
                     devices = uiItems,
                     isRefreshing = false
                 )
             } catch (ex: Exception) {
+                val msg = ex.localizedMessage ?: ex.toString()
+
                 val now = _uiState.value
-                if (now is DevicesUiState.Success) {
-                    _uiState.value = now.copy(isRefreshing = false)
+                _uiState.value = if (now is DevicesUiState.Success) {
+                    now.copy(isRefreshing = false)
                 } else {
-                    _uiState.value = DevicesUiState.Error(ex.localizedMessage ?: ex.toString())
+                    DevicesUiState.Error(msg)
                 }
             }
         }
