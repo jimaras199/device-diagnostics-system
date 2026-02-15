@@ -10,11 +10,20 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import com.jimaras199.devicediagnostics.ui.events.DevicesUiEvent
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 
 class DevicesViewModel(
     private val repo: DashboardRepository
 ) : ViewModel() {
 
+    private val _events = MutableSharedFlow<DevicesUiEvent>(
+        replay = 0,
+        extraBufferCapacity = 1
+    )
+    val events: SharedFlow<DevicesUiEvent> = _events.asSharedFlow()
     private val _uiState = MutableStateFlow<DevicesUiState>(DevicesUiState.Loading)
     val uiState: StateFlow<DevicesUiState> = _uiState.asStateFlow()
 
@@ -38,18 +47,17 @@ class DevicesViewModel(
                 _uiState.value = DevicesUiState.Success(
                     devices = uiItems,
                     isRefreshing = false,
-                    transientError = null
                 )
             } catch (ex: Exception) {
                 val msg = ex.localizedMessage ?: ex.toString()
-
                 val now = _uiState.value
-                _uiState.value = if (now is DevicesUiState.Success) {
-                    now.copy(isRefreshing = false,transientError = msg)
+
+                if (now is DevicesUiState.Success) {
+                    _uiState.value = now.copy(isRefreshing = false)
+                    _events.tryEmit(DevicesUiEvent.ShowRefreshError(msg))
                 } else {
-                    DevicesUiState.Error(msg)
-                }
-            }
+                    _uiState.value = DevicesUiState.Error(msg)
+                }            }
         }
     }
 }

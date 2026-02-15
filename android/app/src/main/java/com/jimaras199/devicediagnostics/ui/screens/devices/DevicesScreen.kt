@@ -18,13 +18,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.jimaras199.devicediagnostics.ui.components.DeviceRow
 import com.jimaras199.devicediagnostics.ui.components.DevicesTopBar
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 
 @OptIn(androidx.compose.material.ExperimentalMaterialApi::class)
 @Composable
 fun DevicesScreen(
     state: DevicesUiState,
     onDeviceClick: (Int, String) -> Unit,
-    onRefresh: () -> Unit
+    onRefresh: () -> Unit,
+    snackbarHostState: SnackbarHostState
 ) {
     val refreshing = (state as? DevicesUiState.Success)?.isRefreshing == true
     val pullRefreshState = rememberPullRefreshState(
@@ -34,6 +37,7 @@ fun DevicesScreen(
 
     Scaffold(
         topBar = { DevicesTopBar(title = "Devices") },
+        snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { padding ->
         Box(
             modifier = Modifier
@@ -62,14 +66,6 @@ fun DevicesScreen(
                         contentPadding = PaddingValues(12.dp),
                         verticalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
-                        state.transientError?.let { msg ->
-                            item {
-                                Text(
-                                    text = "Refresh failed: $msg",
-                                    modifier = Modifier.padding(bottom = 4.dp)
-                                )
-                            }
-                        }
                         items(state.devices) { device ->
                             DeviceRow(
                                 device = device,
