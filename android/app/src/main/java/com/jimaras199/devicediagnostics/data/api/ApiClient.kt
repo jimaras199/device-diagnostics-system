@@ -1,5 +1,7 @@
 package com.jimaras199.devicediagnostics.data.api
 
+import com.jimaras199.devicediagnostics.auth.AuthInterceptor
+import com.jimaras199.devicediagnostics.auth.TokenProvider
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import okhttp3.OkHttpClient
@@ -9,7 +11,7 @@ import retrofit2.converter.moshi.MoshiConverterFactory
 
 object ApiClient {
 
-    private const val BASE_URL = "http://192.168.1.12:5275/"
+    private const val BASE_URL = "http://192.168.68.54:5275/"
 
     private val moshi: Moshi by lazy {
         Moshi.Builder()
@@ -17,26 +19,27 @@ object ApiClient {
             .build()
     }
 
-    private val okHttp: OkHttpClient by lazy {
+    private fun buildOkHttp(tokenProvider: TokenProvider): OkHttpClient {
         val logging = HttpLoggingInterceptor().apply {
             level = HttpLoggingInterceptor.Level.BODY
         }
-        OkHttpClient.Builder()
+
+        return OkHttpClient.Builder()
+            .addInterceptor(AuthInterceptor(tokenProvider))
             .addInterceptor(logging)
             .build()
     }
 
-    private val retrofit: Retrofit by lazy {
+    private fun buildRetrofit(tokenProvider: TokenProvider): Retrofit =
         Retrofit.Builder()
             .baseUrl(BASE_URL)
-            .client(okHttp)
+            .client(buildOkHttp(tokenProvider))
             .addConverterFactory(MoshiConverterFactory.create(moshi))
             .build()
-    }
 
-    fun createDashboardApi(): DashboardApi =
-        retrofit.create(DashboardApi::class.java)
+    fun createDashboardApi(tokenProvider: TokenProvider): DashboardApi =
+        buildRetrofit(tokenProvider).create(DashboardApi::class.java)
 
-    fun createDevicesApi(): DevicesApi =
-        retrofit.create(DevicesApi::class.java)
+    fun createDevicesApi(tokenProvider: TokenProvider): DevicesApi =
+        buildRetrofit(tokenProvider).create(DevicesApi::class.java)
 }
