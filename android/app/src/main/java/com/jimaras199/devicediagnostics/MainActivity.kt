@@ -16,7 +16,7 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             DeviceDiagnosticsTheme {
-                val container = remember { AppContainer() }
+                val container = remember { AppContainer(applicationContext) }
                 AppNavHost(container)
             }
         }

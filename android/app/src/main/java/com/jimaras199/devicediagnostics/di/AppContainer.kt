@@ -1,18 +1,38 @@
 package com.jimaras199.devicediagnostics.di
 
-import com.jimaras199.devicediagnostics.auth.InMemoryTokenProvider
+import android.content.Context
+import com.jimaras199.devicediagnostics.auth.CachedTokenProvider
+import com.jimaras199.devicediagnostics.auth.TokenProvider
+import com.jimaras199.devicediagnostics.auth.TokenStore
 import com.jimaras199.devicediagnostics.data.api.ApiClient
-import com.jimaras199.devicediagnostics.data.api.DashboardApi
-import com.jimaras199.devicediagnostics.data.api.DevicesApi
+import com.jimaras199.devicediagnostics.data.repository.AuthRepository
+import com.jimaras199.devicediagnostics.data.repository.AuthRepositoryImpl
 import com.jimaras199.devicediagnostics.data.repository.DevicesRepository
 import com.jimaras199.devicediagnostics.data.repository.DevicesRepositoryImpl
 import com.jimaras199.devicediagnostics.data.repository.DashboardRepository
 import com.jimaras199.devicediagnostics.data.repository.DashboardRepositoryImpl
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
 
-class AppContainer {
-    val tokenProvider = InMemoryTokenProvider()
-    val dashboardApi: DashboardApi = ApiClient.createDashboardApi(tokenProvider)
-    val devicesApi: DevicesApi = ApiClient.createDevicesApi(tokenProvider)
-    val devicesRepository: DevicesRepository = DevicesRepositoryImpl(devicesApi)
+class AppContainer(context: Context) {
+    private val tokenStore = TokenStore(context)
+
+    private val _tokenState = MutableStateFlow<String?>(null)
+    val tokenState: StateFlow<String?> = _tokenState
+    val tokenProvider: TokenProvider = CachedTokenProvider(tokenState)
+    val authApi = ApiClient.createAuthApi(tokenProvider)
+    val dashboardApi = ApiClient.createDashboardApi(tokenProvider)
+    val devicesApi = ApiClient.createDevicesApi(tokenProvider)
+    val authRepository: AuthRepository = AuthRepositoryImpl(authApi, tokenStore)
     val dashboardRepository: DashboardRepository = DashboardRepositoryImpl(dashboardApi)
+    val devicesRepository: DevicesRepository = DevicesRepositoryImpl(devicesApi)
+
+    init {
+        CoroutineScope(Dispatchers.IO).launch {
+            tokenStore.tokenFlow.collect { t -> _tokenState.value = t }
+        }
+    }
 }

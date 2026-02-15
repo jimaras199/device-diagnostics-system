@@ -42,4 +42,7 @@ object ApiClient {
 
     fun createDevicesApi(tokenProvider: TokenProvider): DevicesApi =
         buildRetrofit(tokenProvider).create(DevicesApi::class.java)
+
+    fun createAuthApi(tokenProvider: TokenProvider): AuthApi =
+        buildRetrofit(tokenProvider).create(AuthApi::class.java)
 }
