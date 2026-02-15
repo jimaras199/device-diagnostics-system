@@ -2,6 +2,8 @@ package com.jimaras199.devicediagnostics.data.api
 
 import com.jimaras199.devicediagnostics.auth.AuthInterceptor
 import com.jimaras199.devicediagnostics.auth.TokenProvider
+import com.jimaras199.devicediagnostics.auth.UnauthorizedHandler
+import com.jimaras199.devicediagnostics.auth.UnauthorizedInterceptor
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import okhttp3.OkHttpClient
@@ -19,30 +21,34 @@ object ApiClient {
             .build()
     }
 
-    private fun buildOkHttp(tokenProvider: TokenProvider): OkHttpClient {
+    private fun buildOkHttp(tokenProvider: TokenProvider,
+                            unauthorizedHandler: UnauthorizedHandler
+    ): OkHttpClient {
         val logging = HttpLoggingInterceptor().apply {
             level = HttpLoggingInterceptor.Level.BODY
         }
 
         return OkHttpClient.Builder()
             .addInterceptor(AuthInterceptor(tokenProvider))
+            .addInterceptor(UnauthorizedInterceptor(unauthorizedHandler))
             .addInterceptor(logging)
             .build()
     }
 
-    private fun buildRetrofit(tokenProvider: TokenProvider): Retrofit =
+    private fun buildRetrofit(tokenProvider: TokenProvider,
+                              unauthorizedHandler: UnauthorizedHandler): Retrofit =
         Retrofit.Builder()
             .baseUrl(BASE_URL)
-            .client(buildOkHttp(tokenProvider))
+            .client(buildOkHttp(tokenProvider,unauthorizedHandler))
             .addConverterFactory(MoshiConverterFactory.create(moshi))
             .build()
 
-    fun createDashboardApi(tokenProvider: TokenProvider): DashboardApi =
-        buildRetrofit(tokenProvider).create(DashboardApi::class.java)
+    fun createDashboardApi(tokenProvider: TokenProvider,unauthorizedHandler: UnauthorizedHandler): DashboardApi =
+        buildRetrofit(tokenProvider,unauthorizedHandler).create(DashboardApi::class.java)
 
-    fun createDevicesApi(tokenProvider: TokenProvider): DevicesApi =
-        buildRetrofit(tokenProvider).create(DevicesApi::class.java)
+    fun createDevicesApi(tokenProvider: TokenProvider,unauthorizedHandler: UnauthorizedHandler): DevicesApi =
+        buildRetrofit(tokenProvider,unauthorizedHandler).create(DevicesApi::class.java)
 
-    fun createAuthApi(tokenProvider: TokenProvider): AuthApi =
-        buildRetrofit(tokenProvider).create(AuthApi::class.java)
+    fun createAuthApi(tokenProvider: TokenProvider,unauthorizedHandler: UnauthorizedHandler): AuthApi =
+        buildRetrofit(tokenProvider,unauthorizedHandler).create(AuthApi::class.java)
 }

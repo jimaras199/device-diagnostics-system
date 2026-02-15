@@ -19,13 +19,18 @@ import kotlinx.coroutines.launch
 
 class AppContainer(context: Context) {
     private val tokenStore = TokenStore(context)
-
     private val _tokenState = MutableStateFlow<String?>(null)
+    private val appScope = CoroutineScope(
+        kotlinx.coroutines.SupervisorJob() + Dispatchers.IO
+    )
+    private val unauthorizedHandler = com.jimaras199.devicediagnostics.auth.UnauthorizedHandler {
+        appScope.launch { authRepository.logout() }
+    }
     val tokenState: StateFlow<String?> = _tokenState
     val tokenProvider: TokenProvider = CachedTokenProvider(tokenState)
-    val authApi = ApiClient.createAuthApi(tokenProvider)
-    val dashboardApi = ApiClient.createDashboardApi(tokenProvider)
-    val devicesApi = ApiClient.createDevicesApi(tokenProvider)
+    val authApi = ApiClient.createAuthApi(tokenProvider,unauthorizedHandler)
+    val dashboardApi = ApiClient.createDashboardApi(tokenProvider,unauthorizedHandler)
+    val devicesApi = ApiClient.createDevicesApi(tokenProvider,unauthorizedHandler)
     val authRepository: AuthRepository = AuthRepositoryImpl(authApi, tokenStore)
     val dashboardRepository: DashboardRepository = DashboardRepositoryImpl(dashboardApi)
     val devicesRepository: DevicesRepository = DevicesRepositoryImpl(devicesApi)

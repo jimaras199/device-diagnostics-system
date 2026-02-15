@@ -11,9 +11,9 @@ import androidx.compose.ui.unit.dp
 import com.jimaras199.devicediagnostics.ui.components.DevicesTopBar
 
 @Composable
-fun DeviceDetailsScreen(state: DeviceDetailsUiState, onRetry: () -> Unit) {
+fun DeviceDetailsScreen(state: DeviceDetailsUiState, onRetry: () -> Unit, onLogout: () -> Unit) {
     Scaffold(
-        topBar = { DevicesTopBar(title = "Device Details") }
+        topBar = { DevicesTopBar(title = "Device Details", onLogout = onLogout) }
     ) { padding ->
         Column(
             modifier = Modifier.padding(padding).padding(12.dp)

@@ -27,7 +27,8 @@ fun DevicesScreen(
     state: DevicesUiState,
     onDeviceClick: (Int, String) -> Unit,
     onRefresh: () -> Unit,
-    snackbarHostState: SnackbarHostState
+    snackbarHostState: SnackbarHostState,
+    onLogout: () -> Unit
 ) {
     val refreshing = (state as? DevicesUiState.Success)?.isRefreshing == true
     val pullRefreshState = rememberPullRefreshState(
@@ -36,7 +37,7 @@ fun DevicesScreen(
     )
 
     Scaffold(
-        topBar = { DevicesTopBar(title = "Devices") },
+        topBar = { DevicesTopBar(title = "Devices", onLogout = onLogout) },
         snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { padding ->
         Box(

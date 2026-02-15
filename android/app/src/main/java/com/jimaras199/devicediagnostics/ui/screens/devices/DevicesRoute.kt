@@ -7,10 +7,12 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.jimaras199.devicediagnostics.di.AppContainer
 import com.jimaras199.devicediagnostics.di.DevicesViewModelFactory
 import com.jimaras199.devicediagnostics.ui.events.DevicesUiEvent
+import kotlinx.coroutines.launch
 
 @Composable
 fun DevicesRoute(
@@ -20,6 +22,8 @@ fun DevicesRoute(
     val vm: DevicesViewModel = viewModel(
         factory = DevicesViewModelFactory(container.dashboardRepository)
     )
+
+    val scope = rememberCoroutineScope()
 
     val state by vm.uiState.collectAsState()
 
@@ -45,6 +49,7 @@ fun DevicesRoute(
         state = state,
         onDeviceClick = onDeviceClick,
         onRefresh = { vm.refresh() },
-        snackbarHostState = snackbarHostState
+        snackbarHostState = snackbarHostState,
+        onLogout = { scope.launch { container.authRepository.logout() } }
     )
 }

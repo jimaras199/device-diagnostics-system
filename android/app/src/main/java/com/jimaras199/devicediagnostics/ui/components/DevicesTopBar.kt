@@ -7,13 +7,14 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun DevicesTopBar(title: String) {
+fun DevicesTopBar(title: String, onLogout: () -> Unit) {
     Surface(
         modifier = Modifier.fillMaxWidth(),
         tonalElevation = 2.dp
@@ -26,8 +27,12 @@ fun DevicesTopBar(title: String) {
         ) {
             Text(
                 text = title,
-                style = MaterialTheme.typography.titleLarge
+                style = MaterialTheme.typography.titleLarge,
+                modifier = Modifier.weight(1f)
             )
+            TextButton(onClick = onLogout) {
+                Text("Logout")
+            }
         }
     }
 }
