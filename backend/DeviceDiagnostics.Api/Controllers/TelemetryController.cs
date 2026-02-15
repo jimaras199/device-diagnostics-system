@@ -1,11 +1,13 @@
 ﻿using DeviceDiagnostics.Api.Contracts;
 using DeviceDiagnostics.Api.Domain;
 using DeviceDiagnostics.Api.Infrastructure;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace DeviceDiagnostics.Api.Controllers;
 
+[Authorize]
 [ApiController]
 [Route("devices/{deviceId:int}/telemetry")]
 public class TelemetryController : ControllerBase

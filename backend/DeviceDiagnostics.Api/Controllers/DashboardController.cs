@@ -1,11 +1,13 @@
 ﻿using DeviceDiagnostics.Api.Contracts.Responses;
 using DeviceDiagnostics.Api.Domain;
 using DeviceDiagnostics.Api.Infrastructure;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace DeviceDiagnostics.Api.Controllers;
 
+[Authorize]
 [ApiController]
 [Route("dashboard")]
 public class DashboardController : ControllerBase

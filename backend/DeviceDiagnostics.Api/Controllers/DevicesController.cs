@@ -3,9 +3,11 @@ using DeviceDiagnostics.Api.Infrastructure;
 using DeviceDiagnostics.Api.Contracts;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
 
 namespace DeviceDiagnostics.Api.Controllers;
 
+[Authorize]
 [ApiController]
 [Route("devices")]
 public class DevicesController : ControllerBase
