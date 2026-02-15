@@ -1,5 +1,6 @@
 package com.jimaras199.devicediagnostics.ui.screens.login
 
+import android.util.Patterns
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.jimaras199.devicediagnostics.data.repository.AuthRepository
@@ -17,9 +18,10 @@ class LoginViewModel(
     private val _uiState = MutableStateFlow<LoginUiState>(LoginUiState.Idle)
     val uiState: StateFlow<LoginUiState> = _uiState.asStateFlow()
 
-    fun login(email: String, password: String) {
+    fun submit(mode: AuthMode, email: String, password: String) {
+        val e = email.trim()
 
-        if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email.trim()).matches()) {
+        if (!Patterns.EMAIL_ADDRESS.matcher(e).matches()) {
             _uiState.value = LoginUiState.Error("Please enter a valid email.")
             return
         }
@@ -32,23 +34,27 @@ class LoginViewModel(
 
         viewModelScope.launch {
             try {
-                repo.login(email, password)
+                when (mode) {
+                    AuthMode.Login -> repo.login(e, password)
+                    AuthMode.Register -> repo.register(e, password)
+                }
                 _uiState.value = LoginUiState.Idle
             } catch (ex: Exception) {
-                _uiState.value = LoginUiState.Error(mapLoginError(ex))
+                _uiState.value = LoginUiState.Error(mapAuthError(ex, mode))
             }
         }
     }
-}
 
-private fun mapLoginError(ex: Exception): String {
-    return when (ex) {
-        is HttpException -> when (ex.code()) {
-            400 -> "Invalid input. Please check email format."
-            401 -> "Wrong email or password."
-            else -> "Server error (${ex.code()}). Try again."
+    private fun mapAuthError(ex: Exception, mode: AuthMode): String {
+        return when (ex) {
+            is HttpException -> when (ex.code()) {
+                400 -> "Invalid input. Please check email/password."
+                401 -> "Wrong email or password."
+                409 -> if (mode == AuthMode.Register) "Email already registered." else "Conflict."
+                else -> "Server error (${ex.code()}). Try again."
+            }
+            is IOException -> "Server unreachable. Check your connection."
+            else -> ex.localizedMessage ?: "Unexpected error."
         }
-        is IOException -> "Server unreachable. Check your connection."
-        else -> ex.localizedMessage ?: "Unexpected error."
     }
 }

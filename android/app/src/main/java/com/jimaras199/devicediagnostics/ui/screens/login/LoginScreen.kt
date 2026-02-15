@@ -1,24 +1,18 @@
 package com.jimaras199.devicediagnostics.ui.screens.login
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.Button
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 
 @Composable
 fun LoginScreen(
     state: LoginUiState,
-    onLogin: (String, String) -> Unit
+    onSubmit: (AuthMode, String, String) -> Unit
 ) {
+    var mode by remember { mutableStateOf(AuthMode.Login) }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
 
@@ -29,36 +23,62 @@ fun LoginScreen(
         verticalArrangement = Arrangement.Center
     ) {
 
-        Text("Login", style = MaterialTheme.typography.titleLarge)
+        Text(
+            text = if (mode == AuthMode.Login) "Login" else "Register",
+            style = MaterialTheme.typography.titleLarge
+        )
+
+        Spacer(Modifier.height(12.dp))
+
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            FilterChip(
+                selected = mode == AuthMode.Login,
+                onClick = { mode = AuthMode.Login },
+                label = { Text("Login") }
+            )
+            FilterChip(
+                selected = mode == AuthMode.Register,
+                onClick = { mode = AuthMode.Register },
+                label = { Text("Register") }
+            )
+        }
 
         Spacer(Modifier.height(16.dp))
 
         OutlinedTextField(
             value = email,
             onValueChange = { email = it },
-            label = { Text("Email") }
+            label = { Text("Email") },
+            singleLine = true,
+            modifier = Modifier.fillMaxWidth()
         )
+
+        Spacer(Modifier.height(10.dp))
 
         OutlinedTextField(
             value = password,
             onValueChange = { password = it },
-            label = { Text("Password") }
+            label = { Text("Password") },
+            singleLine = true,
+            visualTransformation = PasswordVisualTransformation(),
+            modifier = Modifier.fillMaxWidth()
         )
 
         Spacer(Modifier.height(16.dp))
 
         Button(
-            onClick = { onLogin(email, password) }
+            onClick = { onSubmit(mode, email, password) },
+            enabled = state !is LoginUiState.Loading
         ) {
-            Text("Login")
+            Text(if (mode == AuthMode.Login) "Login" else "Register")
         }
 
-        if (state is LoginUiState.Loading) {
-            CircularProgressIndicator()
-        }
+        Spacer(Modifier.height(12.dp))
 
-        if (state is LoginUiState.Error) {
-            Text(
+        when (state) {
+            LoginUiState.Idle -> Unit
+            LoginUiState.Loading -> CircularProgressIndicator()
+            is LoginUiState.Error -> Text(
                 text = state.message,
                 color = MaterialTheme.colorScheme.error
             )

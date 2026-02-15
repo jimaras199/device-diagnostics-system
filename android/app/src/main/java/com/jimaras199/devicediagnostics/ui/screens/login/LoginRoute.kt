@@ -18,6 +18,6 @@ fun LoginRoute(container: AppContainer) {
 
     LoginScreen(
         state = state,
-        onLogin = { email, pass -> vm.login(email, pass) }
+        onSubmit = { mode, email, pass -> vm.submit(mode, email, pass) }
     )
 }
