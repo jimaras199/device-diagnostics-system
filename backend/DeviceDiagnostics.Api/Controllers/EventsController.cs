@@ -1,4 +1,5 @@
 ﻿using DeviceDiagnostics.Api.Contracts;
+using DeviceDiagnostics.Api.Contracts.Responses;
 using DeviceDiagnostics.Api.Domain;
 using DeviceDiagnostics.Api.Infrastructure;
 using Microsoft.AspNetCore.Authorization;
@@ -17,10 +18,10 @@ public class EventsController : ControllerBase
     public EventsController(AppDbContext db) => _db = db;
 
     [HttpPost]
-    [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(EventLog))]
+    [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(EventResponse))]
     [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ValidationProblemDetails))]
     [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ProblemDetails))]
-    public async Task<ActionResult<EventLog>> Create(int deviceId,[FromBody] CreateEventRequest request,CancellationToken ct)
+    public async Task<ActionResult<EventResponse>> Create(int deviceId,[FromBody] CreateEventRequest request,CancellationToken ct)
     {
         var deviceExists = await _db.Devices.AnyAsync(d => d.Id == deviceId, ct);
         if (!deviceExists)
@@ -52,13 +53,21 @@ public class EventsController : ControllerBase
         _db.EventLogs.Add(ev);
         await _db.SaveChangesAsync(ct);
 
-        return Created($"/devices/{deviceId}/events/{ev.Id}", ev);
+        var response = new EventResponse
+        {
+            Id = ev.Id,
+            Level = ev.Level,
+            Message = ev.Message,
+            TimestampUtc = ev.Timestamp
+        };
+
+        return Created($"/devices/{deviceId}/events/{ev.Id}", response);
     }
 
     [HttpGet]
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<EventLog>))]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<EventResponse>))]
     [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ProblemDetails))]
-    public async Task<ActionResult<List<EventLog>>> Get(int deviceId,[FromQuery] DateTime? fromUtc,[FromQuery] DateTime? toUtc,[FromQuery] string? level,CancellationToken ct)
+    public async Task<ActionResult<List<EventResponse>>> Get(int deviceId,[FromQuery] DateTime? fromUtc,[FromQuery] DateTime? toUtc,[FromQuery] string? level,CancellationToken ct)
     {
         var deviceExists = await _db.Devices.AnyAsync(d => d.Id == deviceId, ct);
         if (!deviceExists)
@@ -80,8 +89,14 @@ public class EventsController : ControllerBase
         var items = await query
             .OrderByDescending(e => e.Timestamp)
             .Take(200)
+            .Select(e => new EventResponse
+            {
+                Id = e.Id,
+                Level = e.Level,
+                Message = e.Message,
+                TimestampUtc = e.Timestamp
+            })
             .ToListAsync(ct);
-
         return Ok(items);
     }
 }
