@@ -4,6 +4,8 @@ using DeviceDiagnostics.Api.Infrastructure;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using DeviceDiagnostics.Api.Contracts.Responses;
+
 
 namespace DeviceDiagnostics.Api.Controllers;
 
@@ -17,10 +19,10 @@ public class TelemetryController : ControllerBase
     public TelemetryController(AppDbContext db) => _db = db;
 
     [HttpPost]
-    [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(Telemetry))]
+    [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(TelemetryResponse))]
     [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ValidationProblemDetails))]
     [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ProblemDetails))]
-    public async Task<ActionResult<Telemetry>> Create(int deviceId, [FromBody] CreateTelemetryRequest request, CancellationToken ct)
+    public async Task<ActionResult<TelemetryResponse>> Create(int deviceId, [FromBody] CreateTelemetryRequest request, CancellationToken ct)
     {
         var deviceExists = await _db.Devices.AnyAsync(d => d.Id == deviceId, ct);
         if (!deviceExists)
@@ -37,13 +39,21 @@ public class TelemetryController : ControllerBase
         _db.Telemetries.Add(telemetry);
         await _db.SaveChangesAsync(ct);
 
-        return Created($"/devices/{deviceId}/telemetry/{telemetry.Id}", telemetry);
+        var response = new TelemetryResponse
+        {
+            Id = telemetry.Id,
+            MetricName = telemetry.MetricName,
+            Value = telemetry.Value,
+            TimestampUtc = telemetry.Timestamp
+        };
+
+        return Created($"/devices/{deviceId}/telemetry/{telemetry.Id}", response);
     }
 
     [HttpGet]
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<Telemetry>))]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<TelemetryResponse>))]
     [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ProblemDetails))]
-    public async Task<ActionResult<List<Telemetry>>> Get(int deviceId, [FromQuery] DateTime? fromUtc, [FromQuery] DateTime? toUtc,[FromQuery] string? metric, CancellationToken ct)
+    public async Task<ActionResult<List<TelemetryResponse>>> Get(int deviceId, [FromQuery] DateTime? fromUtc, [FromQuery] DateTime? toUtc,[FromQuery] string? metric, CancellationToken ct)
     {
         var deviceExists = await _db.Devices.AnyAsync(d => d.Id == deviceId, ct);
         if (!deviceExists)
@@ -64,6 +74,13 @@ public class TelemetryController : ControllerBase
         var items = await query
             .OrderByDescending(t => t.Timestamp)
             .Take(200)
+            .Select(t => new TelemetryResponse
+            {
+                Id = t.Id,
+                MetricName = t.MetricName,
+                Value = t.Value,
+                TimestampUtc = t.Timestamp
+            })
             .ToListAsync(ct);
 
         return Ok(items);
