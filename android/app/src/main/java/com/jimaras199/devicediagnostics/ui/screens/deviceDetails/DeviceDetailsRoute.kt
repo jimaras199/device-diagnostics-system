@@ -14,9 +14,12 @@ import kotlinx.coroutines.launch
 fun DeviceDetailsRoute(container: AppContainer, deviceId: Int) {
 
     val vm: DeviceDetailsViewModel = viewModel(
-        factory = DeviceDetailsViewModelFactory(container.devicesRepository)
+        factory = DeviceDetailsViewModelFactory(
+            container.devicesRepository,
+            container.telemetryRepository,
+            container.eventsRepository
+        )
     )
-
     val state by vm.uiState.collectAsState()
 
     LaunchedEffect(deviceId) {
