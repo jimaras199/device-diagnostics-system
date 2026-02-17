@@ -5,12 +5,7 @@ import com.jimaras199.devicediagnostics.auth.CachedTokenProvider
 import com.jimaras199.devicediagnostics.auth.TokenProvider
 import com.jimaras199.devicediagnostics.auth.TokenStore
 import com.jimaras199.devicediagnostics.data.api.ApiClient
-import com.jimaras199.devicediagnostics.data.repository.AuthRepository
-import com.jimaras199.devicediagnostics.data.repository.AuthRepositoryImpl
-import com.jimaras199.devicediagnostics.data.repository.DevicesRepository
-import com.jimaras199.devicediagnostics.data.repository.DevicesRepositoryImpl
-import com.jimaras199.devicediagnostics.data.repository.DashboardRepository
-import com.jimaras199.devicediagnostics.data.repository.DashboardRepositoryImpl
+import com.jimaras199.devicediagnostics.data.repository.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -34,6 +29,13 @@ class AppContainer(context: Context) {
     val authRepository: AuthRepository = AuthRepositoryImpl(authApi, tokenStore)
     val dashboardRepository: DashboardRepository = DashboardRepositoryImpl(dashboardApi)
     val devicesRepository: DevicesRepository = DevicesRepositoryImpl(devicesApi)
+
+    val telemetryApi = ApiClient.createTelemetryApi(tokenProvider, unauthorizedHandler)
+    val eventsApi = ApiClient.createEventsApi(tokenProvider, unauthorizedHandler)
+
+    val telemetryRepository: TelemetryRepository = TelemetryRepositoryImpl(telemetryApi)
+    val eventsRepository: EventsRepository = EventsRepositoryImpl(eventsApi)
+
 
     init {
         CoroutineScope(Dispatchers.IO).launch {

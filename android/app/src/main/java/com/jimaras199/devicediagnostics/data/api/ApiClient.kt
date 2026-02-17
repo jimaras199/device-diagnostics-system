@@ -13,7 +13,7 @@ import retrofit2.converter.moshi.MoshiConverterFactory
 
 object ApiClient {
 
-    private const val BASE_URL = "http://192.168.68.54:5275/"
+    private const val BASE_URL = "http://192.168.1.28:5275/"
 
     private val moshi: Moshi by lazy {
         Moshi.Builder()
@@ -51,4 +51,11 @@ object ApiClient {
 
     fun createAuthApi(tokenProvider: TokenProvider,unauthorizedHandler: UnauthorizedHandler): AuthApi =
         buildRetrofit(tokenProvider,unauthorizedHandler).create(AuthApi::class.java)
+
+    fun createTelemetryApi(tokenProvider: TokenProvider, unauthorizedHandler: UnauthorizedHandler): TelemetryApi =
+        buildRetrofit(tokenProvider, unauthorizedHandler).create(TelemetryApi::class.java)
+
+    fun createEventsApi(tokenProvider: TokenProvider, unauthorizedHandler: UnauthorizedHandler): EventsApi =
+        buildRetrofit(tokenProvider, unauthorizedHandler).create(EventsApi::class.java)
+
 }
