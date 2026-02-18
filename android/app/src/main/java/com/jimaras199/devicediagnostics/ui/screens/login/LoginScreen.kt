@@ -1,6 +1,7 @@
 package com.jimaras199.devicediagnostics.ui.screens.login
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -10,7 +11,9 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun LoginScreen(
     state: LoginUiState,
-    onSubmit: (AuthMode, String, String) -> Unit
+    baseUrl: String,//δβ
+    onSubmit: (AuthMode, String, String) -> Unit,
+    onOpenSettings: () -> Unit
 ) {
     var mode by remember { mutableStateOf(AuthMode.Login) }
     var email by remember { mutableStateOf("") }
@@ -64,13 +67,31 @@ fun LoginScreen(
             modifier = Modifier.fillMaxWidth()
         )
 
+        Spacer(Modifier.height(10.dp))
+
+        Text(
+            text = "Server: $baseUrl",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+
+
         Spacer(Modifier.height(16.dp))
 
-        Button(
-            onClick = { onSubmit(mode, email, password) },
-            enabled = state !is LoginUiState.Loading
-        ) {
-            Text(if (mode == AuthMode.Login) "Login" else "Register")
+        Row(modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween) {
+            Button(
+                onClick = { onSubmit(mode, email, password) },
+                enabled = state !is LoginUiState.Loading
+            ) {
+                Text(if (mode == AuthMode.Login) "Login" else "Register")
+            }
+
+            Spacer(Modifier.height(16.dp))
+
+            TextButton(onClick = onOpenSettings) {
+                Text("Server settings")
+            }
         }
 
         Spacer(Modifier.height(12.dp))

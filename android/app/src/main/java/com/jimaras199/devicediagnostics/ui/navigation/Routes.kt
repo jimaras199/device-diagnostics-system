@@ -4,4 +4,5 @@ object Routes {
     const val LOGIN = "login"
     const val DEVICES = "devices"
     const val DEVICE_DETAILS = "deviceDetails"
+    const val SETTINGS = "settings"
 }

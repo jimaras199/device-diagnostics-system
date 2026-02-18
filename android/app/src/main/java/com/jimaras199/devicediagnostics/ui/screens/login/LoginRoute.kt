@@ -8,16 +8,24 @@ import com.jimaras199.devicediagnostics.di.AppContainer
 import com.jimaras199.devicediagnostics.di.LoginViewModelFactory
 
 @Composable
-fun LoginRoute(container: AppContainer) {
-
+fun LoginRoute(
+    container: AppContainer,
+    onOpenSettings: () -> Unit
+) {
     val vm: LoginViewModel = viewModel(
-        factory = LoginViewModelFactory(container.authRepository)
+        factory = LoginViewModelFactory(repo = container.authRepository)
     )
 
     val state by vm.uiState.collectAsState()
+    val baseUrl by container.baseUrl.collectAsState() //δβ
+
 
     LoginScreen(
         state = state,
-        onSubmit = { mode, email, pass -> vm.submit(mode, email, pass) }
+        baseUrl = baseUrl,
+        onSubmit = { mode, email, pass ->
+            vm.submit(mode, email, password = pass)
+        },
+        onOpenSettings = onOpenSettings
     )
 }

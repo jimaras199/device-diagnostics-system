@@ -13,6 +13,7 @@ import com.jimaras199.devicediagnostics.di.AppContainer
 import com.jimaras199.devicediagnostics.ui.screens.deviceDetails.DeviceDetailsRoute
 import com.jimaras199.devicediagnostics.ui.screens.devices.DevicesRoute
 import com.jimaras199.devicediagnostics.ui.screens.login.LoginRoute
+import com.jimaras199.devicediagnostics.ui.screens.settings.ServerSettingsRoute
 
 @Composable
 fun AppNavHost(container: AppContainer) {
@@ -32,7 +33,10 @@ fun AppNavHost(container: AppContainer) {
         startDestination = if (token == null) Routes.LOGIN else Routes.DEVICES
     ) {
         composable(Routes.LOGIN) {
-            LoginRoute(container)
+            LoginRoute(
+                container = container,
+                onOpenSettings = { navController.navigate(Routes.SETTINGS) }
+            )
         }
 
         composable(Routes.DEVICES) {
@@ -50,6 +54,13 @@ fun AppNavHost(container: AppContainer) {
         ) { backStackEntry ->
             val id = backStackEntry.arguments?.getInt("deviceId") ?: 0
             DeviceDetailsRoute(container = container, deviceId = id)
+        }
+
+        composable(Routes.SETTINGS) {
+            ServerSettingsRoute(
+                container = container,
+                onSaved = { navController.popBackStack() }
+            )
         }
     }
 }
