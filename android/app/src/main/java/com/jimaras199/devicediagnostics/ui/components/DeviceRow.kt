@@ -12,6 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.jimaras199.devicediagnostics.ui.models.DeviceListItem
+import com.jimaras199.devicediagnostics.ui.util.formatUtcTimestamp
 
 @Composable
 fun DeviceRow(device: DeviceListItem, onClick: () -> Unit) {
@@ -26,7 +27,7 @@ fun DeviceRow(device: DeviceListItem, onClick: () -> Unit) {
                 Text(text = it, style = MaterialTheme.typography.bodyMedium)
             }
             Text(
-                text = "Last seen: ${device.lastSeenUtc}",
+                text = "Last seen: ${formatUtcTimestamp(device.lastSeenUtc)}",
                 style = MaterialTheme.typography.bodySmall
             )
         }

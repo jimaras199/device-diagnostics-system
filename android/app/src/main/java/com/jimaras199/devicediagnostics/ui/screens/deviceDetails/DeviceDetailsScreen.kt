@@ -12,6 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.jimaras199.devicediagnostics.ui.components.DevicesTopBar
+import com.jimaras199.devicediagnostics.ui.util.formatUtcTimestamp
 
 @Composable
 fun DeviceDetailsScreen(state: DeviceDetailsUiState, onRetry: () -> Unit, onLogout: () -> Unit) {
@@ -35,14 +36,14 @@ fun DeviceDetailsScreen(state: DeviceDetailsUiState, onRetry: () -> Unit, onLogo
 
                     Text("Telemetry", style = MaterialTheme.typography.titleMedium)
                     state.data.telemetry.take(10).forEach {
-                        Text("${it.metricName}: ${it.value} @ ${it.timestampUtc}")
+                        Text("${it.metricName}: ${it.value} @ ${formatUtcTimestamp(it.timestampUtc)}")
                     }
 
                     Spacer(Modifier.height(12.dp))
 
                     Text("Events", style = MaterialTheme.typography.titleMedium)
                     state.data.events.take(10).forEach {
-                        Text("[${it.level}] ${it.message} @ ${it.timestampUtc}")
+                        Text("[${it.level}] ${it.message} @ ${formatUtcTimestamp(it.timestampUtc)}")
                     }
                 }
             }
