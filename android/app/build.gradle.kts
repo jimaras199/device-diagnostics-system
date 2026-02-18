@@ -55,6 +55,7 @@ dependencies {
     implementation("androidx.compose.material:material:1.7.7")
     implementation("androidx.datastore:datastore-preferences:1.1.1")
     implementation(libs.androidx.ui.graphics)
+    implementation(libs.androidx.compose.foundation)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
