@@ -1,6 +1,5 @@
 package com.jimaras199.devicediagnostics.ui.screens.login
 
-import android.util.Patterns
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -19,7 +18,6 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.getValue
@@ -46,37 +44,14 @@ fun LoginScreen(
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
 
-    // local validation error (πριν φτάσουμε στο API)
-    var localError by remember { mutableStateOf<String?>(null) }
-
     val isLoading = state is LoginUiState.Loading
     val passwordFocus = remember { FocusRequester() }
     val keyboard = LocalSoftwareKeyboardController.current
 
-    // Αν ξεκινήσει loading, καθάρισε localError για να μην "μπερδεύει"
-    LaunchedEffect(isLoading) {
-        if (isLoading) localError = null
-    }
-
-    fun validateAndSubmit() {
-        val e = email.trim()
-        val p = password
-
-        val emailOk = Patterns.EMAIL_ADDRESS.matcher(e).matches()
-        val passOk = p.length >= 6
-
-        localError = when {
-            e.isBlank() -> "Email is required."
-            !emailOk -> "Enter a valid email."
-            p.isBlank() -> "Password is required."
-            !passOk -> "Password must be at least 6 characters."
-            else -> null
-        }
-
-        if (localError == null && !isLoading) {
-            keyboard?.hide()
-            onSubmit(mode, e, p)
-        }
+    fun submit() {
+        if (isLoading) return
+        keyboard?.hide()
+        onSubmit(mode, email.trim(), password)
     }
 
     Column(
@@ -111,10 +86,7 @@ fun LoginScreen(
 
         OutlinedTextField(
             value = email,
-            onValueChange = {
-                email = it
-                if (localError != null) localError = null
-            },
+            onValueChange = { email = it },
             label = { Text("Email") },
             singleLine = true,
             enabled = !isLoading,
@@ -132,10 +104,7 @@ fun LoginScreen(
 
         OutlinedTextField(
             value = password,
-            onValueChange = {
-                password = it
-                if (localError != null) localError = null
-            },
+            onValueChange = { password = it },
             label = { Text("Password") },
             singleLine = true,
             enabled = !isLoading,
@@ -145,7 +114,7 @@ fun LoginScreen(
                 imeAction = ImeAction.Done
             ),
             keyboardActions = KeyboardActions(
-                onDone = { validateAndSubmit() }
+                onDone = { submit() }
             ),
             modifier = Modifier
                 .fillMaxWidth()
@@ -167,7 +136,7 @@ fun LoginScreen(
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Button(
-                onClick = { validateAndSubmit() },
+                onClick = { submit() },
                 enabled = !isLoading
             ) {
                 if (isLoading) {
@@ -176,6 +145,7 @@ fun LoginScreen(
                         modifier = Modifier.size(18.dp)
                     )
                     Spacer(Modifier.width(8.dp))
+                    Text("Please wait")
                 } else {
                     Text(if (mode == AuthMode.Login) "Login" else "Register")
                 }
@@ -191,17 +161,11 @@ fun LoginScreen(
 
         Spacer(Modifier.height(12.dp))
 
-        // Προτεραιότητα: local validation error, μετά API error
-        when {
-            localError != null -> Text(
-                text = localError!!,
-                color = MaterialTheme.colorScheme.error
-            )
-            state is LoginUiState.Error -> Text(
+        if (state is LoginUiState.Error) {
+            Text(
                 text = state.message,
                 color = MaterialTheme.colorScheme.error
             )
-            else -> Unit
         }
     }
 }
