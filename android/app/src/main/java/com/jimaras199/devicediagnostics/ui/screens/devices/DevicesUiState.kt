@@ -8,4 +8,6 @@ sealed interface DevicesUiState {
     data class Success(
         val devices: List<DeviceListItem>,
         val isRefreshing: Boolean = false,
+        val demoSeeded: Boolean = false,
+        val isSeedingDemo: Boolean = false,
     ) : DevicesUiState}

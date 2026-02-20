@@ -20,7 +20,7 @@ fun DevicesRoute(
     onDeviceClick: (Int, String) -> Unit
 ) {
     val vm: DevicesViewModel = viewModel(
-        factory = DevicesViewModelFactory(container.dashboardRepository)
+        factory = DevicesViewModelFactory(container.dashboardRepository,container.demoRepository)
     )
 
     val scope = rememberCoroutineScope()
@@ -40,6 +40,12 @@ fun DevicesRoute(
                     if (result == SnackbarResult.ActionPerformed) {
                         vm.refresh()
                     }
+                }
+
+                is DevicesUiEvent.ShowMessage -> {
+                    snackbarHostState.showSnackbar(
+                        message = event.message
+                    )
                 }
             }
         }
