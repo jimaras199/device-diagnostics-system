@@ -1,11 +1,10 @@
 ﻿using DeviceDiagnostics.Api.Contracts;
+using DeviceDiagnostics.Api.Contracts.Responses;
 using DeviceDiagnostics.Api.Domain;
 using DeviceDiagnostics.Api.Infrastructure;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using DeviceDiagnostics.Api.Contracts.Responses;
-
 
 namespace DeviceDiagnostics.Api.Controllers;
 
@@ -24,8 +23,13 @@ public class TelemetryController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ProblemDetails))]
     public async Task<ActionResult<TelemetryResponse>> Create(int deviceId, [FromBody] CreateTelemetryRequest request, CancellationToken ct)
     {
-        var deviceExists = await _db.Devices.AnyAsync(d => d.Id == deviceId, ct);
-        if (!deviceExists)
+        var userId = User.GetUserId();
+
+        var deviceOwned = await _db.Devices
+            .AsNoTracking()
+            .AnyAsync(d => d.Id == deviceId && d.OwnerUserId == userId, ct);
+
+        if (!deviceOwned)
             return NotFound(ApiErrors.NotFound($"Device {deviceId} was not found."));
 
         var telemetry = new Telemetry
@@ -37,6 +41,11 @@ public class TelemetryController : ControllerBase
         };
 
         _db.Telemetries.Add(telemetry);
+
+        await _db.Devices
+            .Where(d => d.Id == deviceId && d.OwnerUserId == userId)
+            .ExecuteUpdateAsync(s => s.SetProperty(d => d.LastSeen, _ => DateTime.UtcNow), ct);
+
         await _db.SaveChangesAsync(ct);
 
         var response = new TelemetryResponse
@@ -55,8 +64,13 @@ public class TelemetryController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ProblemDetails))]
     public async Task<ActionResult<List<TelemetryResponse>>> Get(int deviceId, [FromQuery] DateTime? fromUtc, [FromQuery] DateTime? toUtc,[FromQuery] string? metric, CancellationToken ct)
     {
-        var deviceExists = await _db.Devices.AnyAsync(d => d.Id == deviceId, ct);
-        if (!deviceExists)
+        var userId = User.GetUserId();
+
+        var deviceOwned = await _db.Devices
+            .AsNoTracking()
+            .AnyAsync(d => d.Id == deviceId && d.OwnerUserId == userId, ct);
+
+        if (!deviceOwned)
             return NotFound(ApiErrors.NotFound($"Device {deviceId} was not found."));
 
         var query = _db.Telemetries.AsNoTracking()

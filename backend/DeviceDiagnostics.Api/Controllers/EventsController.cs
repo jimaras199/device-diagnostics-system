@@ -23,8 +23,13 @@ public class EventsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ProblemDetails))]
     public async Task<ActionResult<EventResponse>> Create(int deviceId,[FromBody] CreateEventRequest request,CancellationToken ct)
     {
-        var deviceExists = await _db.Devices.AnyAsync(d => d.Id == deviceId, ct);
-        if (!deviceExists)
+        var userId = User.GetUserId();
+
+        var deviceOwned = await _db.Devices
+            .AsNoTracking()
+            .AnyAsync(d => d.Id == deviceId && d.OwnerUserId == userId, ct);
+
+        if (!deviceOwned)
             return NotFound(ApiErrors.NotFound($"Device {deviceId} was not found."));
 
         var level = request.Level.Trim();
@@ -51,6 +56,11 @@ public class EventsController : ControllerBase
         };
 
         _db.EventLogs.Add(ev);
+
+        await _db.Devices
+            .Where(d => d.Id == deviceId && d.OwnerUserId == userId)
+            .ExecuteUpdateAsync(s => s.SetProperty(d => d.LastSeen, _ => DateTime.UtcNow), ct);
+
         await _db.SaveChangesAsync(ct);
 
         var response = new EventResponse
@@ -69,8 +79,13 @@ public class EventsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ProblemDetails))]
     public async Task<ActionResult<List<EventResponse>>> Get(int deviceId,[FromQuery] DateTime? fromUtc,[FromQuery] DateTime? toUtc,[FromQuery] string? level,CancellationToken ct)
     {
-        var deviceExists = await _db.Devices.AnyAsync(d => d.Id == deviceId, ct);
-        if (!deviceExists)
+        var userId = User.GetUserId();
+
+        var deviceOwned = await _db.Devices
+            .AsNoTracking()
+            .AnyAsync(d => d.Id == deviceId && d.OwnerUserId == userId, ct);
+
+        if (!deviceOwned)
             return NotFound(ApiErrors.NotFound($"Device {deviceId} was not found."));
 
         var query = _db.EventLogs
@@ -97,6 +112,7 @@ public class EventsController : ControllerBase
                 TimestampUtc = e.Timestamp
             })
             .ToListAsync(ct);
+
         return Ok(items);
     }
 }

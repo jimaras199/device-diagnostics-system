@@ -1,5 +1,4 @@
 ﻿using DeviceDiagnostics.Api.Contracts.Responses;
-using DeviceDiagnostics.Api.Domain;
 using DeviceDiagnostics.Api.Infrastructure;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -26,9 +25,12 @@ public class DashboardController : ControllerBase
             ModelState.AddModelError(nameof(metricsPerDevice), "metricsPerDevice must be between 0 and 20.");
             return ValidationProblem(ModelState);
         }
-        
+
+        var userId = User.GetUserId();
+
         var devices = await _db.Devices
             .AsNoTracking()
+            .Where(d => d.OwnerUserId == userId)
             .OrderByDescending(d => d.LastSeen)
             .Select(d => new DeviceDashboardItem
             {
