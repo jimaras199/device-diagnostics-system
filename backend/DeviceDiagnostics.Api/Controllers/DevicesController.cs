@@ -21,7 +21,11 @@ public class DevicesController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Device))]
     public async Task<ActionResult<List<Device>>> GetDevices(CancellationToken ct)
     {
+        var userId = User.GetUserId();
+
         var devices = await _db.Devices
+            .AsNoTracking()
+            .Where(d => d.OwnerUserId == userId)
             .OrderByDescending(d => d.LastSeen)
             .ToListAsync(ct);
 
@@ -33,8 +37,11 @@ public class DevicesController : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ValidationProblemDetails))]
     public async Task<ActionResult<Device>> CreateDevice([FromBody] CreateDeviceRequest request, CancellationToken ct)
     {
+        var userId = User.GetUserId();
+
         var device = new Device
         {
+            OwnerUserId = userId,
             Name = request.Name.Trim(),
             Model = string.IsNullOrWhiteSpace(request.Model) ? null : request.Model.Trim(),
             LastSeen = DateTime.UtcNow
@@ -51,7 +58,12 @@ public class DevicesController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Device))]
     public async Task<ActionResult<Device>> GetDeviceById(int id, CancellationToken ct)
     {
-        var device = await _db.Devices.FirstOrDefaultAsync(d => d.Id == id, ct);
+        var userId = User.GetUserId();
+
+        var device = await _db.Devices
+            .AsNoTracking()
+            .FirstOrDefaultAsync(d => d.Id == id && d.OwnerUserId == userId, ct);
+
         if (device is null)
             return NotFound(ApiErrors.NotFound($"Device {id} was not found."));
 
