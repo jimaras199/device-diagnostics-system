@@ -28,11 +28,7 @@ class AppContainer(context: Context) {
     val baseUrl: StateFlow<String> = _baseUrl.asStateFlow()
     val tokenProvider: TokenProvider = CachedTokenProvider(tokenState)
     private val unauthorizedHandler = UnauthorizedHandler {
-        appScope.launch { logout() }
-    }
-    private fun logout() {
         appScope.launch { tokenStore.setToken(null) }
-        _tokenState.value = null
     }
     private val retrofit: Retrofit by lazy {
         val okHttp = ApiClient.buildOkHttp(
