@@ -15,8 +15,11 @@ public class AppDbContext : DbContext
         base.OnModelCreating(modelBuilder);
 
         modelBuilder.Entity<AppUser>()
-        .HasIndex(u => u.Email)
-        .IsUnique();
+            .HasIndex(u => u.Email)
+            .IsUnique();
+
+        modelBuilder.Entity<Device>()
+            .HasIndex(d => new { d.OwnerUserId, d.LastSeen });
 
         modelBuilder.Entity<Telemetry>()
             .HasOne(t => t.Device)
