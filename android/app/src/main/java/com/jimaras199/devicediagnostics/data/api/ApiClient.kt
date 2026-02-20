@@ -53,4 +53,6 @@ object ApiClient {
     fun createAuthApi(retrofit: Retrofit): AuthApi = retrofit.create(AuthApi::class.java)
     fun createTelemetryApi(retrofit: Retrofit): TelemetryApi = retrofit.create(TelemetryApi::class.java)
     fun createEventsApi(retrofit: Retrofit): EventsApi = retrofit.create(EventsApi::class.java)
+
+    fun createDemoApi(retrofit: Retrofit): DemoApi = retrofit.create(DemoApi::class.java)
 }

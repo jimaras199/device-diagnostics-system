@@ -43,6 +43,8 @@ class AppContainer(context: Context) {
     private val devicesApi = ApiClient.createDevicesApi(retrofit)
     private val telemetryApi = ApiClient.createTelemetryApi(retrofit)
     private val eventsApi = ApiClient.createEventsApi(retrofit)
+    private val demoApi = ApiClient.createDemoApi(retrofit)
+    val demoRepository: DemoRepository = DemoRepositoryImpl(demoApi)
     val authRepository: AuthRepository = AuthRepositoryImpl(authApi, tokenStore)
     val dashboardRepository: DashboardRepository = DashboardRepositoryImpl(dashboardApi)
     val devicesRepository: DevicesRepository = DevicesRepositoryImpl(devicesApi)
