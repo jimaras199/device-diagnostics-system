@@ -27,7 +27,7 @@ fun DeviceDetailsScreen(
     onLogout: () -> Unit
 ) {
     Scaffold(
-        topBar = { DevicesTopBar(title = "Device Details", onLogout = onLogout) }
+        topBar = { DevicesTopBar(title = "Device Details", onLogout = onLogout, showDemoButton = false,demoButtonEnabled = false,onLoadDemo = {}) }
     ) { padding ->
         when (state) {
             DeviceDetailsUiState.Loading -> {

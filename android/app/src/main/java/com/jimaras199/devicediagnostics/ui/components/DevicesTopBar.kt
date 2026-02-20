@@ -14,7 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun DevicesTopBar(title: String, onLogout: () -> Unit) {
+fun DevicesTopBar(title: String,onLogout: () -> Unit,showDemoButton: Boolean,demoButtonEnabled: Boolean,onLoadDemo: () -> Unit) {
     Surface(
         modifier = Modifier.fillMaxWidth(),
         tonalElevation = 2.dp
@@ -30,6 +30,16 @@ fun DevicesTopBar(title: String, onLogout: () -> Unit) {
                 style = MaterialTheme.typography.titleLarge,
                 modifier = Modifier.weight(1f)
             )
+
+            if (showDemoButton) {
+                TextButton(
+                    onClick = onLoadDemo,
+                    enabled = demoButtonEnabled
+                ) {
+                    Text("Demo data")
+                }
+            }
+
             TextButton(onClick = onLogout) {
                 Text("Logout")
             }

@@ -56,6 +56,7 @@ fun DevicesRoute(
         onDeviceClick = onDeviceClick,
         onRefresh = { vm.refresh() },
         snackbarHostState = snackbarHostState,
-        onLogout = { scope.launch { container.authRepository.logout() } }
+        onLogout = { scope.launch { container.authRepository.logout() } },
+        onLoadDemo = { vm.seedDemo() }
     )
 }
