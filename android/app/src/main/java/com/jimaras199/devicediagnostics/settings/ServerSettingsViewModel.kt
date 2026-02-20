@@ -12,7 +12,8 @@ import kotlinx.coroutines.launch
 data class ServerSettingsUiState(
     val scheme: String = "http",
     val host: String = "192.168.68.55",
-    val port: String = "5275"
+    val port: String = "5275",
+    val error: String? = null
 )
 
 class ServerSettingsViewModel(
@@ -33,15 +34,27 @@ class ServerSettingsViewModel(
             }
         }
     }
-
-    fun updateScheme(v: String) { _uiState.value = _uiState.value.copy(scheme = v) }
-    fun updateHost(v: String) { _uiState.value = _uiState.value.copy(host = v) }
-    fun updatePort(v: String) { _uiState.value = _uiState.value.copy(port = v) }
-
+    fun updateHost(v: String) { _uiState.value = _uiState.value.copy(host = v, error = null) }
+    fun updatePort(v: String) { _uiState.value = _uiState.value.copy(port = v, error = null) }
+    fun updateScheme(v: String) { _uiState.value = _uiState.value.copy(scheme = v, error = null) }
     fun save(onDone: () -> Unit) {
         viewModelScope.launch {
             val s = _uiState.value
+            val hostOk = s.host.trim().isNotBlank()
+            val portInt = s.port.trim().toIntOrNull()
+            val portOk = portInt != null && portInt in 1..65535
+
+            if (!hostOk) {
+                _uiState.value = s.copy(error = "Host is required.")
+                return@launch
+            }
+            if (!portOk) {
+                _uiState.value = s.copy(error = "Port must be 1–65535.")
+                return@launch
+            }
+
             store.save(ServerSettings(s.scheme, s.host, s.port))
+            _uiState.value = s.copy(error = null)
             onDone()
         }
     }

@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.jimaras199.devicediagnostics.di.AppContainer
+import com.jimaras199.devicediagnostics.settings.ServerSettingsScreen
 
 @Composable
 fun ServerSettingsRoute(

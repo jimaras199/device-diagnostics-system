@@ -1,4 +1,4 @@
-package com.jimaras199.devicediagnostics.ui.screens.settings
+package com.jimaras199.devicediagnostics.settings
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
@@ -7,6 +7,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.jimaras199.devicediagnostics.ui.screens.settings.ServerSettingsViewModel
 
 @Composable
 fun ServerSettingsScreen(
@@ -58,7 +59,9 @@ fun ServerSettingsScreen(
         ) {
             Text("Save")
         }
-
+        state.error?.let {
+            Text(text = it, color = MaterialTheme.colorScheme.error)
+        }
         Text(
             text = "Example: Emulator host is 10.0.2.2",
             style = MaterialTheme.typography.bodySmall
