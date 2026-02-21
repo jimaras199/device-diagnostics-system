@@ -20,6 +20,9 @@ import androidx.compose.ui.unit.dp
 import com.jimaras199.devicediagnostics.ui.components.DevicesTopBar
 import com.jimaras199.devicediagnostics.ui.util.formatUtcTimestamp
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.ui.Alignment
+import java.time.OffsetDateTime
 
 @Composable
 fun DeviceDetailsScreen(
@@ -54,10 +57,13 @@ fun DeviceDetailsScreen(
                 val latestPerMetric = data.telemetry
                     .groupBy { it.metricName }
                     .mapNotNull { (name, items) ->
-                        val latest = items.maxByOrNull { it.timestampUtc } ?: return@mapNotNull null
-                        formatMetric(name, latest.value)
+                        val latest = items.maxByOrNull { parseUtc(it.timestampUtc) ?: OffsetDateTime.MIN }
+                            ?: return@mapNotNull null
+
+                        val line = metricLine(name, latest.value) ?: return@mapNotNull null
+                        line
                     }
-                    .sorted()
+                    .sortedBy { it.label.lowercase() }
 
                 LazyColumn(
                     modifier = Modifier.padding(padding).padding(12.dp),
@@ -106,11 +112,15 @@ fun DeviceDetailsScreen(
                                 elevation = CardDefaults.cardElevation(2.dp)
                             ) {
                                 Column(Modifier.padding(12.dp)) {
-                                    latestPerMetric.forEach { line ->
-                                        Text(
-                                            text = line,
-                                            style = MaterialTheme.typography.bodyMedium
-                                        )
+                                    latestPerMetric.forEach { m ->
+                                        Row(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            horizontalArrangement = Arrangement.SpaceBetween,
+                                            verticalAlignment = Alignment.CenterVertically
+                                        ) {
+                                            Text(m.label, style = MaterialTheme.typography.bodyMedium)
+                                            Text(m.valueText, style = MaterialTheme.typography.bodyMedium)
+                                        }
                                     }
                                 }
                             }
@@ -139,11 +149,29 @@ fun DeviceDetailsScreen(
                                 Column(
                                     Modifier.padding(12.dp)
                                 ) {
-                                    Text(t.metricName, style = MaterialTheme.typography.titleSmall)
-                                    Text("Value: ${t.value}")
+                                    val line = metricLine(t.metricName, t.value)
+                                    val label = line?.label ?: t.metricName
+                                    val valueText = line?.valueText ?: t.value.toString()
+
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.SpaceBetween,
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Text(
+                                            text = label,
+                                            style = MaterialTheme.typography.titleSmall
+                                        )
+                                        Text(
+                                            text = valueText,
+                                            style = MaterialTheme.typography.titleSmall
+                                        )
+                                    }
+
                                     Text(
-                                        formatUtcTimestamp(t.timestampUtc),
-                                        style = MaterialTheme.typography.bodySmall
+                                        text = formatUtcTimestamp(t.timestampUtc),
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
                                     )
                                 }
                             }
@@ -198,13 +226,17 @@ fun DeviceDetailsScreen(
     }
 }
 
-private fun formatMetric(metricName: String, value: Double): String? {
-    val key = metricName.lowercase()
-    return when (key) {
-        "battery_pct" -> "Battery" to "${value.toInt()}%"
-        "temp_c" -> "Temp" to "${"%.1f".format(value)}°C"
-        "signal_dbm" -> "Signal" to "${value.toInt()} dBm"
-        "cpu_pct" -> "CPU" to "${value.toInt()}%"
+private fun parseUtc(ts: String): OffsetDateTime? =
+    try { OffsetDateTime.parse(ts) } catch (_: Exception) { null }
+
+private data class MetricLine(val label: String, val valueText: String)
+
+private fun metricLine(metricName: String, value: Double): MetricLine? {
+    return when (metricName.lowercase()) {
+        "battery_pct" -> MetricLine("Battery", "${value.toInt()}%")
+        "temp_c" -> MetricLine("Temp", "${"%.1f".format(value)}°C")
+        "signal_dbm" -> MetricLine("Signal", "${value.toInt()} dBm")
+        "cpu_pct" -> MetricLine("CPU", "${value.toInt()}%")
         else -> null
-    }?.let { (label, v) -> "$label: $v" }
+    }
 }
