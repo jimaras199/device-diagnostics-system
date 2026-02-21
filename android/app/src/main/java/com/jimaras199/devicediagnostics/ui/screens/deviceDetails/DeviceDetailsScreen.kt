@@ -1,5 +1,6 @@
 package com.jimaras199.devicediagnostics.ui.screens.deviceDetails
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -21,7 +22,9 @@ import com.jimaras199.devicediagnostics.ui.components.DevicesTopBar
 import com.jimaras199.devicediagnostics.ui.util.formatUtcTimestamp
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.text.font.FontWeight
 import java.time.OffsetDateTime
 
 @Composable
@@ -35,15 +38,17 @@ fun DeviceDetailsScreen(
     ) { padding ->
         when (state) {
             DeviceDetailsUiState.Loading -> {
+                Spacer(Modifier.height(4.dp))
                 Text(
                     text = "Loading…",
-                    modifier = Modifier.padding(padding).padding(12.dp)
+                    modifier = Modifier.padding(padding).padding(horizontal = 12.dp)
                 )
             }
 
             is DeviceDetailsUiState.Error -> {
+                Spacer(Modifier.height(4.dp))
                 LazyColumn(
-                    modifier = Modifier.padding(padding).padding(12.dp),
+                    modifier = Modifier.padding(padding).padding(horizontal = 12.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     item { Text("Error: ${state.message}") }
@@ -66,9 +71,10 @@ fun DeviceDetailsScreen(
                     .sortedBy { it.label.lowercase() }
 
                 LazyColumn(
-                    modifier = Modifier.padding(padding).padding(12.dp),
+                    modifier = Modifier.padding(padding).padding(horizontal = 12.dp),
                     verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
+                    item { Spacer(Modifier.height(4.dp)) }
                     item {
                         Card(
                             modifier = Modifier.fillMaxWidth(),
@@ -193,30 +199,52 @@ fun DeviceDetailsScreen(
                         }
                     } else {
                         items(data.events.take(10)) { e ->
-                            val levelColor = when (e.level.lowercase()) {
-                                "error" -> Color.Red
-                                "warning" -> Color(0xFFFFA500)
-                                else -> MaterialTheme.colorScheme.primary
+                            val (bgColor, contentColor) = when (e.level.lowercase()) {
+                                "error" -> Color(0xFFFFEBEE) to Color(0xFFB00020)
+                                "warning" -> Color(0xFFFFF8E1) to Color(0xFFEF6C00)
+                                else -> MaterialTheme.colorScheme.primaryContainer to
+                                        MaterialTheme.colorScheme.onPrimaryContainer
                             }
-
                             Card(
                                 modifier = Modifier.fillMaxWidth(),
                                 elevation = CardDefaults.cardElevation(2.dp)
                             ) {
-                                Column(
-                                    Modifier.padding(12.dp)
+                                Column(Modifier.padding(12.dp)) {
+
+                                Row(
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    modifier = Modifier.fillMaxWidth()
                                 ) {
                                     Text(
-                                        "[${e.level}]",
-                                        color = levelColor,
-                                        style = MaterialTheme.typography.labelMedium
-                                    )
-                                    Text(e.message)
-                                    Text(
-                                        formatUtcTimestamp(e.timestampUtc),
-                                        style = MaterialTheme.typography.bodySmall
+                                        text = e.message,
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        fontWeight = FontWeight.Medium,
+                                        modifier = Modifier.weight(1f)
                                     )
                                 }
+
+                                Spacer(Modifier.height(6.dp))
+
+                                Row(
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    modifier = Modifier.fillMaxWidth()
+                                ) {
+                                    Text(
+                                        text = e.level.uppercase(),
+                                        color = contentColor,
+                                        style = MaterialTheme.typography.labelSmall,
+                                        modifier = Modifier
+                                            .background(bgColor, RoundedCornerShape(50))
+                                            .padding(horizontal = 10.dp, vertical = 4.dp)
+                                    )
+
+                                    Text(
+                                        text = formatUtcTimestamp(e.timestampUtc),
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                            }
                             }
                         }
                     }
