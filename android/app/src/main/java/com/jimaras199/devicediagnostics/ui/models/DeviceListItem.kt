@@ -4,5 +4,6 @@ data class DeviceListItem(
     val id: Int,
     val name: String,
     val model: String?,
-    val lastSeenUtc: String
+    val lastSeenUtc: String,
+    val latestMetricsText: String? = null
 )

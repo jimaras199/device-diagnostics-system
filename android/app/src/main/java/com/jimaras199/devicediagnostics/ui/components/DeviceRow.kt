@@ -30,6 +30,13 @@ fun DeviceRow(device: DeviceListItem, onClick: () -> Unit) {
                 text = "Last seen: ${formatUtcTimestamp(device.lastSeenUtc)}",
                 style = MaterialTheme.typography.bodySmall
             )
+            device.latestMetricsText?.let { text ->
+                Text(
+                    text = text,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
         }
     }
 }
