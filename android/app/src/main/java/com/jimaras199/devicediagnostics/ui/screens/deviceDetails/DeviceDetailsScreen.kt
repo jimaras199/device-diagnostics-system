@@ -51,6 +51,13 @@ fun DeviceDetailsScreen(
             is DeviceDetailsUiState.Success -> {
                 val data = state.data
                 val d = data.device
+                val latestPerMetric = data.telemetry
+                    .groupBy { it.metricName }
+                    .mapNotNull { (name, items) ->
+                        val latest = items.maxByOrNull { it.timestampUtc } ?: return@mapNotNull null
+                        formatMetric(name, latest.value)
+                    }
+                    .sorted()
 
                 LazyColumn(
                     modifier = Modifier.padding(padding).padding(12.dp),
@@ -80,6 +87,37 @@ fun DeviceDetailsScreen(
                             }
                         }
                     }
+
+                    item {
+                        Text("Latest metrics", style = MaterialTheme.typography.titleMedium)
+                    }
+
+                    if (latestPerMetric.isEmpty()) {
+                        item {
+                            Text(
+                                "No metrics yet",
+                                style = MaterialTheme.typography.bodySmall
+                            )
+                        }
+                    } else {
+                        item {
+                            Card(
+                                modifier = Modifier.fillMaxWidth(),
+                                elevation = CardDefaults.cardElevation(2.dp)
+                            ) {
+                                Column(Modifier.padding(12.dp)) {
+                                    latestPerMetric.forEach { line ->
+                                        Text(
+                                            text = line,
+                                            style = MaterialTheme.typography.bodyMedium
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    item { Spacer(Modifier.height(8.dp)) }
 
                     item {
                         Text("Telemetry", style = MaterialTheme.typography.titleMedium)
@@ -158,4 +196,15 @@ fun DeviceDetailsScreen(
             }
         }
     }
+}
+
+private fun formatMetric(metricName: String, value: Double): String? {
+    val key = metricName.lowercase()
+    return when (key) {
+        "battery_pct" -> "Battery" to "${value.toInt()}%"
+        "temp_c" -> "Temp" to "${"%.1f".format(value)}°C"
+        "signal_dbm" -> "Signal" to "${value.toInt()} dBm"
+        "cpu_pct" -> "CPU" to "${value.toInt()}%"
+        else -> null
+    }?.let { (label, v) -> "$label: $v" }
 }
