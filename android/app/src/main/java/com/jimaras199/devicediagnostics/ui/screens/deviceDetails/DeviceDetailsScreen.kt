@@ -19,6 +19,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.jimaras199.devicediagnostics.ui.components.DevicesTopBar
 import com.jimaras199.devicediagnostics.ui.util.formatUtcTimestamp
+import androidx.compose.foundation.layout.Column
 
 @Composable
 fun DeviceDetailsScreen(
@@ -56,11 +57,29 @@ fun DeviceDetailsScreen(
                     verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
                     item {
-                        Text("Name: ${d.name}")
-                        Text("Model: ${d.model ?: "-"}")
-                    }
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            elevation = CardDefaults.cardElevation(2.dp)
+                        ) {
+                            Column(Modifier.padding(12.dp)) {
+                                Text(
+                                    text = d.name,
+                                    style = MaterialTheme.typography.titleLarge
+                                )
 
-                    item { Spacer(Modifier.height(8.dp)) }
+                                val subtitleParts = buildList {
+                                    d.model?.takeIf { it.isNotBlank() }?.let { add(it) }
+                                    add("Last seen: ${formatUtcTimestamp(d.lastSeen)}")
+                                }
+
+                                Text(
+                                    text = subtitleParts.joinToString(" • "),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                        }
+                    }
 
                     item {
                         Text("Telemetry", style = MaterialTheme.typography.titleMedium)
@@ -79,7 +98,7 @@ fun DeviceDetailsScreen(
                                 modifier = Modifier.fillMaxWidth(),
                                 elevation = CardDefaults.cardElevation(2.dp)
                             ) {
-                                androidx.compose.foundation.layout.Column(
+                                Column(
                                     Modifier.padding(12.dp)
                                 ) {
                                     Text(t.metricName, style = MaterialTheme.typography.titleSmall)
@@ -118,7 +137,7 @@ fun DeviceDetailsScreen(
                                 modifier = Modifier.fillMaxWidth(),
                                 elevation = CardDefaults.cardElevation(2.dp)
                             ) {
-                                androidx.compose.foundation.layout.Column(
+                                Column(
                                     Modifier.padding(12.dp)
                                 ) {
                                     Text(
