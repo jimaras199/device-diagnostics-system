@@ -3,13 +3,12 @@ package com.jimaras199.devicediagnostics.ui.screens.login
 import android.util.Patterns
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.jimaras199.devicediagnostics.data.network.NetworkErrorMapper
 import com.jimaras199.devicediagnostics.data.repository.AuthRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import retrofit2.HttpException
-import java.io.IOException
 
 class LoginViewModel(
     private val repo: AuthRepository
@@ -40,21 +39,13 @@ class LoginViewModel(
                 }
                 _uiState.value = LoginUiState.Idle
             } catch (ex: Exception) {
-                _uiState.value = LoginUiState.Error(mapAuthError(ex, mode))
-            }
-        }
-    }
+                val ctx = if (mode == AuthMode.Login)
+                    NetworkErrorMapper.Context.AuthLogin
+                else
+                    NetworkErrorMapper.Context.AuthRegister
 
-    private fun mapAuthError(ex: Exception, mode: AuthMode): String {
-        return when (ex) {
-            is HttpException -> when (ex.code()) {
-                400 -> "Invalid input. Please check email/password."
-                401 -> "Wrong email or password."
-                409 -> if (mode == AuthMode.Register) "Email already registered." else "Conflict."
-                else -> "Server error (${ex.code()}). Try again."
+                _uiState.value = LoginUiState.Error(NetworkErrorMapper.message(ex, ctx))
             }
-            is IOException -> "Server unreachable. Check your connection."
-            else -> ex.localizedMessage ?: "Unexpected error."
         }
     }
 }

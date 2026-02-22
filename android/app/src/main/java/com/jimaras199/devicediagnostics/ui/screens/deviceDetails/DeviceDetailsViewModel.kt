@@ -2,6 +2,7 @@ package com.jimaras199.devicediagnostics.ui.screens.deviceDetails
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.jimaras199.devicediagnostics.data.network.NetworkErrorMapper
 import com.jimaras199.devicediagnostics.data.repository.DevicesRepository
 import com.jimaras199.devicediagnostics.data.repository.EventsRepository
 import com.jimaras199.devicediagnostics.data.repository.TelemetryRepository
@@ -41,7 +42,8 @@ class DeviceDetailsViewModel(
 
                 _uiState.value = DeviceDetailsUiState.Success(data)
             } catch (ex: Exception) {
-                _uiState.value = DeviceDetailsUiState.Error(ex.localizedMessage ?: ex.toString())
+                val msg = NetworkErrorMapper.message(ex, NetworkErrorMapper.Context.GenericLoad)
+                _uiState.value = DeviceDetailsUiState.Error(msg)
             }
         }
     }

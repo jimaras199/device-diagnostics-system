@@ -3,6 +3,7 @@ package com.jimaras199.devicediagnostics.ui.screens.devices
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.jimaras199.devicediagnostics.data.model.toDeviceListItem
+import com.jimaras199.devicediagnostics.data.network.NetworkErrorMapper
 import com.jimaras199.devicediagnostics.data.repository.DashboardRepository
 import com.jimaras199.devicediagnostics.data.repository.DemoRepository
 import kotlinx.coroutines.Dispatchers
@@ -16,6 +17,7 @@ import com.jimaras199.devicediagnostics.ui.models.DeviceListItem
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import retrofit2.HttpException
 
 class DevicesViewModel(
     private val repo: DashboardRepository,
@@ -31,7 +33,9 @@ class DevicesViewModel(
     private val _uiState = MutableStateFlow<DevicesUiState>(DevicesUiState.Loading)
     val uiState: StateFlow<DevicesUiState> = _uiState.asStateFlow()
 
-    init { refresh() }
+    init {
+        refresh()
+    }
 
     fun refresh() {
         val current = _uiState.value
@@ -54,7 +58,7 @@ class DevicesViewModel(
                     isSeedingDemo = false
                 )
             } catch (ex: Exception) {
-                val msg = ex.localizedMessage ?: ex.toString()
+                val msg = NetworkErrorMapper.message(ex, NetworkErrorMapper.Context.GenericLoad)
                 val now = _uiState.value
 
                 if (now is DevicesUiState.Success) {
@@ -67,7 +71,6 @@ class DevicesViewModel(
         }
     }
 
-
     fun seedDemo() {
         val current = _uiState.value
         if (current is DevicesUiState.Success && current.isSeedingDemo) return
@@ -79,33 +82,35 @@ class DevicesViewModel(
 
         viewModelScope.launch {
             try {
-                demoRepo.seedDemo()
+                withContext(Dispatchers.IO) { demoRepo.seedDemo() }
 
-                _events.tryEmit(
-                    DevicesUiEvent.ShowMessage("Demo data loaded")
+                _events.tryEmit(DevicesUiEvent.ShowMessage("Demo data loaded"))
+
+                val uiItems = loadDevices()
+                _uiState.value = DevicesUiState.Success(
+                    devices = uiItems,
+                    isRefreshing = false,
+                    demoSeeded = true,
+                    isSeedingDemo = false
                 )
-
-                refreshWithDemoFlag()
-
             } catch (ex: Exception) {
+                if (ex is HttpException && ex.code() == 409) {
+                    val uiItems = runCatching { loadDevices() }.getOrElse { emptyList() }
 
-                val http = ex as? retrofit2.HttpException
-
-                if (http?.code() == 409) {
-                    _events.tryEmit(
-                        DevicesUiEvent.ShowMessage("Demo already loaded")
+                    _uiState.value = DevicesUiState.Success(
+                        devices = uiItems,
+                        isRefreshing = false,
+                        demoSeeded = true,
+                        isSeedingDemo = false
                     )
-                    refreshWithDemoFlag()
+
+                    _events.tryEmit(DevicesUiEvent.ShowMessage("Demo already loaded"))
                     return@launch
                 }
 
-                val msg = mapDemoSeedError(ex)
+                val msg = NetworkErrorMapper.message(ex, NetworkErrorMapper.Context.DemoSeed)
                 val now = _uiState.value
-
-                if (now is DevicesUiState.Success) {
-                    _uiState.value = now.copy(isSeedingDemo = false)
-                }
-
+                if (now is DevicesUiState.Success) _uiState.value = now.copy(isSeedingDemo = false)
                 _events.tryEmit(DevicesUiEvent.ShowMessage(msg))
             }
         }
@@ -116,27 +121,4 @@ class DevicesViewModel(
             repo.getDevicesDashboard(metricsPerDevice = 5)
                 .map { it.toDeviceListItem() }
         }
-
-    private fun refreshWithDemoFlag() {
-        viewModelScope.launch {
-            val uiItems = loadDevices()
-            _uiState.value = DevicesUiState.Success(
-                devices = uiItems,
-                isRefreshing = false,
-                demoSeeded = true,
-                isSeedingDemo = false
-            )
-        }
-    }
-
-    private fun mapDemoSeedError(ex: Exception): String {
-        return when (ex) {
-            is retrofit2.HttpException -> when (ex.code()) {
-                401 -> "Session expired. Please login again."
-                else -> "Failed to load demo data (${ex.code()})"
-            }
-            is java.io.IOException -> "Server unreachable. Check your connection."
-            else -> ex.localizedMessage ?: "Failed to load demo data."
-        }
-    }
 }
