@@ -25,7 +25,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.text.font.FontWeight
-import java.time.OffsetDateTime
+import com.jimaras199.devicediagnostics.ui.formatters.MetricsUiFormatter
 
 @Composable
 fun DeviceDetailsScreen(
@@ -62,11 +62,8 @@ fun DeviceDetailsScreen(
                 val latestPerMetric = data.telemetry
                     .groupBy { it.metricName }
                     .mapNotNull { (name, items) ->
-                        val latest = items.maxByOrNull { parseUtc(it.timestampUtc) ?: OffsetDateTime.MIN }
-                            ?: return@mapNotNull null
-
-                        val line = metricLine(name, latest.value) ?: return@mapNotNull null
-                        line
+                        val latest = items.maxByOrNull { it.timestampUtc } ?: return@mapNotNull null
+                        MetricsUiFormatter.metricUi(name, latest.value)
                     }
                     .sortedBy { it.label.lowercase() }
 
@@ -155,9 +152,9 @@ fun DeviceDetailsScreen(
                                 Column(
                                     Modifier.padding(12.dp)
                                 ) {
-                                    val line = metricLine(t.metricName, t.value)
-                                    val label = line?.label ?: t.metricName
-                                    val valueText = line?.valueText ?: t.value.toString()
+                                    val ui = MetricsUiFormatter.metricUi(t.metricName, t.value)
+                                    val label = ui?.label ?: t.metricName
+                                    val valueText = ui?.valueText ?: t.value.toString()
 
                                     Row(
                                         modifier = Modifier.fillMaxWidth(),
@@ -251,20 +248,5 @@ fun DeviceDetailsScreen(
                 }
             }
         }
-    }
-}
-
-private fun parseUtc(ts: String): OffsetDateTime? =
-    try { OffsetDateTime.parse(ts) } catch (_: Exception) { null }
-
-private data class MetricLine(val label: String, val valueText: String)
-
-private fun metricLine(metricName: String, value: Double): MetricLine? {
-    return when (metricName.lowercase()) {
-        "battery_pct" -> MetricLine("Battery", "${value.toInt()}%")
-        "temp_c" -> MetricLine("Temp", "${"%.1f".format(value)}°C")
-        "signal_dbm" -> MetricLine("Signal", "${value.toInt()} dBm")
-        "cpu_pct" -> MetricLine("CPU", "${value.toInt()}%")
-        else -> null
     }
 }
