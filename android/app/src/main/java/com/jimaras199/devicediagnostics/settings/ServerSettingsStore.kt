@@ -31,7 +31,7 @@ class ServerSettingsStore(private val context: Context) {
         context.serverSettingsDataStore.data.map { prefs ->
             ServerSettings(
                 scheme = prefs[KEY_SCHEME] ?: "http",
-                host = prefs[KEY_HOST] ?: "192.168.68.55",
+                host = prefs[KEY_HOST] ?: "10.0.2.2",
                 port = prefs[KEY_PORT] ?: "5275"
             )
         }

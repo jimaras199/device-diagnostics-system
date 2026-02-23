@@ -11,7 +11,7 @@ import kotlinx.coroutines.launch
 
 data class ServerSettingsUiState(
     val scheme: String = "http",
-    val host: String = "192.168.68.55",
+    val host: String = "10.0.2.2",
     val port: String = "5275",
     val error: String? = null
 )

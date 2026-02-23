@@ -24,7 +24,7 @@ class AppContainer(context: Context) {
     private val _tokenState = MutableStateFlow<String?>(null)
     val tokenState: StateFlow<String?> = _tokenState.asStateFlow()
     val serverSettingsStore = ServerSettingsStore(context)
-    private val _baseUrl = MutableStateFlow("http://192.168.68.55:5275/")
+    private val _baseUrl = MutableStateFlow("http://10.0.2.2:5275/")
     val baseUrl: StateFlow<String> = _baseUrl.asStateFlow()
     val tokenProvider: TokenProvider = CachedTokenProvider(tokenState)
     private val unauthorizedHandler = UnauthorizedHandler {
