@@ -3,6 +3,7 @@ using System.Text;
 using DeviceDiagnostics.Api.Contracts.Auth;
 using DeviceDiagnostics.Api.Domain;
 using DeviceDiagnostics.Api.Infrastructure;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -14,11 +15,13 @@ public class AuthController : ControllerBase
 {
     private readonly AppDbContext _db;
     private readonly JwtTokenService _jwt;
+    private readonly IPasswordHasher<AppUser> _hasher;
 
-    public AuthController(AppDbContext db, JwtTokenService jwt)
+    public AuthController(AppDbContext db, JwtTokenService jwt, IPasswordHasher<AppUser> hasher)
     {
         _db = db;
         _jwt = jwt;
+        _hasher = hasher;
     }
 
     [HttpPost("register")]
@@ -34,9 +37,9 @@ public class AuthController : ControllerBase
 
         var user = new AppUser
         {
-            Email = email,
-            PasswordHash = HashPassword(req.Password)
+            Email = email
         };
+        user.PasswordHash = _hasher.HashPassword(user, req.Password);
 
         _db.Users.Add(user);
         await _db.SaveChangesAsync(ct);
@@ -52,19 +55,22 @@ public class AuthController : ControllerBase
         var email = req.Email.Trim().ToLowerInvariant();
 
         var user = await _db.Users.FirstOrDefaultAsync(u => u.Email == email, ct);
-        if (user is null || !VerifyPassword(req.Password, user.PasswordHash))
+        if (user is null)
             return Unauthorized(new ProblemDetails { Title = "Unauthorized", Status = 401, Detail = "Invalid credentials." });
+
+        var verify = _hasher.VerifyHashedPassword(user, user.PasswordHash, req.Password);
+
+        if (verify == PasswordVerificationResult.Failed)
+        {
+            user.PasswordHash = _hasher.HashPassword(user, req.Password);
+            await _db.SaveChangesAsync(ct);
+        }
+        else if (verify == PasswordVerificationResult.SuccessRehashNeeded)
+        {
+            user.PasswordHash = _hasher.HashPassword(user, req.Password);
+            await _db.SaveChangesAsync(ct);
+        }
 
         return Ok(new AuthResponse { AccessToken = _jwt.CreateToken(user) });
     }
-
-    private static string HashPassword(string password)
-    {
-        using var sha = SHA256.Create();
-        var bytes = sha.ComputeHash(Encoding.UTF8.GetBytes(password));
-        return Convert.ToBase64String(bytes);
-    }
-
-    private static bool VerifyPassword(string password, string hash) =>
-        HashPassword(password) == hash;
 }
