@@ -7,7 +7,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.jimaras199.devicediagnostics.ui.screens.settings.ServerSettingsViewModel
 
 @Composable
 fun ServerSettingsScreen(

@@ -1,9 +1,7 @@
-package com.jimaras199.devicediagnostics.ui.screens.settings
+package com.jimaras199.devicediagnostics.settings
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.jimaras199.devicediagnostics.settings.ServerSettings
-import com.jimaras199.devicediagnostics.settings.ServerSettingsStore
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
