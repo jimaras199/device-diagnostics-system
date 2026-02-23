@@ -12,6 +12,8 @@ import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 import java.util.concurrent.TimeUnit
+import com.jimaras199.devicediagnostics.BuildConfig
+
 object ApiClient {
 
     private val moshi: Moshi by lazy {
@@ -26,8 +28,13 @@ object ApiClient {
         baseUrlProvider: () -> String
     ): OkHttpClient {
         val logging = HttpLoggingInterceptor().apply {
-            level = HttpLoggingInterceptor.Level.BODY
+            level = if (BuildConfig.DEBUG) {
+                HttpLoggingInterceptor.Level.BODY
+            } else {
+                HttpLoggingInterceptor.Level.NONE
+            }
         }
+        logging.redactHeader("Authorization")
 
         return OkHttpClient.Builder()
             .addInterceptor(BaseUrlInterceptor { baseUrlProvider().toHttpUrl() })
@@ -57,6 +64,5 @@ object ApiClient {
     fun createAuthApi(retrofit: Retrofit): AuthApi = retrofit.create(AuthApi::class.java)
     fun createTelemetryApi(retrofit: Retrofit): TelemetryApi = retrofit.create(TelemetryApi::class.java)
     fun createEventsApi(retrofit: Retrofit): EventsApi = retrofit.create(EventsApi::class.java)
-
     fun createDemoApi(retrofit: Retrofit): DemoApi = retrofit.create(DemoApi::class.java)
 }
