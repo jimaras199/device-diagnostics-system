@@ -1,6 +1,7 @@
 package com.jimaras199.devicediagnostics.di
 
 import android.content.Context
+import com.jimaras199.devicediagnostics.auth.AuthEvent
 import com.jimaras199.devicediagnostics.auth.CachedTokenProvider
 import com.jimaras199.devicediagnostics.auth.TokenProvider
 import com.jimaras199.devicediagnostics.auth.TokenStore
@@ -16,6 +17,9 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import retrofit2.Retrofit
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 
 class AppContainer(context: Context) {
 
@@ -27,8 +31,16 @@ class AppContainer(context: Context) {
     private val _baseUrl = MutableStateFlow("http://10.0.2.2:5275/")
     val baseUrl: StateFlow<String> = _baseUrl.asStateFlow()
     val tokenProvider: TokenProvider = CachedTokenProvider(tokenState)
+    private val _authEvents = MutableSharedFlow<AuthEvent>(
+        replay = 0,
+        extraBufferCapacity = 1
+    )
+    val authEvents: SharedFlow<AuthEvent> = _authEvents.asSharedFlow()
     private val unauthorizedHandler = UnauthorizedHandler {
-        appScope.launch { tokenStore.setToken(null) }
+        appScope.launch {
+            tokenStore.setToken(null)
+            _authEvents.tryEmit(AuthEvent.SessionExpired)
+        }
     }
     private val retrofit: Retrofit by lazy {
         val okHttp = ApiClient.buildOkHttp(

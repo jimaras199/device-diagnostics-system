@@ -32,11 +32,15 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 
 @Composable
 fun LoginScreen(
     state: LoginUiState,
     baseUrl: String,
+    snackbarHostState: SnackbarHostState,
     onSubmit: (AuthMode, String, String) -> Unit,
     onOpenSettings: () -> Unit
 ) {
@@ -53,119 +57,123 @@ fun LoginScreen(
         keyboard?.hide()
         onSubmit(mode, email.trim(), password)
     }
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(24.dp),
-        verticalArrangement = Arrangement.Center
-    ) {
-        Text(
-            text = if (mode == AuthMode.Login) "Login" else "Register",
-            style = MaterialTheme.typography.titleLarge
-        )
-
-        Spacer(Modifier.height(12.dp))
-
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            FilterChip(
-                selected = mode == AuthMode.Login,
-                onClick = { if (!isLoading) mode = AuthMode.Login },
-                enabled = !isLoading,
-                label = { Text("Login") }
-            )
-            FilterChip(
-                selected = mode == AuthMode.Register,
-                onClick = { if (!isLoading) mode = AuthMode.Register },
-                enabled = !isLoading,
-                label = { Text("Register") }
-            )
-        }
-
-        Spacer(Modifier.height(16.dp))
-
-        OutlinedTextField(
-            value = email,
-            onValueChange = { email = it },
-            label = { Text("Email") },
-            singleLine = true,
-            enabled = !isLoading,
-            keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Email,
-                imeAction = ImeAction.Next
-            ),
-            keyboardActions = KeyboardActions(
-                onNext = { passwordFocus.requestFocus() }
-            ),
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        Spacer(Modifier.height(10.dp))
-
-        OutlinedTextField(
-            value = password,
-            onValueChange = { password = it },
-            label = { Text("Password") },
-            singleLine = true,
-            enabled = !isLoading,
-            visualTransformation = PasswordVisualTransformation(),
-            keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Password,
-                imeAction = ImeAction.Done
-            ),
-            keyboardActions = KeyboardActions(
-                onDone = { submit() }
-            ),
+    Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) }
+    ) { padding ->
+        Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .focusRequester(passwordFocus)
-        )
-
-        Spacer(Modifier.height(10.dp))
-
-        Text(
-            text = "Server: $baseUrl",
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-
-        Spacer(Modifier.height(16.dp))
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
+                .fillMaxSize()
+                .padding(padding)
+                .padding(24.dp),
+            verticalArrangement = Arrangement.Center
         ) {
-            Button(
-                onClick = { submit() },
-                enabled = !isLoading
+            Text(
+                text = if (mode == AuthMode.Login) "Login" else "Register",
+                style = MaterialTheme.typography.titleLarge
+            )
+
+            Spacer(Modifier.height(12.dp))
+
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                FilterChip(
+                    selected = mode == AuthMode.Login,
+                    onClick = { if (!isLoading) mode = AuthMode.Login },
+                    enabled = !isLoading,
+                    label = { Text("Login") }
+                )
+                FilterChip(
+                    selected = mode == AuthMode.Register,
+                    onClick = { if (!isLoading) mode = AuthMode.Register },
+                    enabled = !isLoading,
+                    label = { Text("Register") }
+                )
+            }
+
+            Spacer(Modifier.height(16.dp))
+
+            OutlinedTextField(
+                value = email,
+                onValueChange = { email = it },
+                label = { Text("Email") },
+                singleLine = true,
+                enabled = !isLoading,
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Email,
+                    imeAction = ImeAction.Next
+                ),
+                keyboardActions = KeyboardActions(
+                    onNext = { passwordFocus.requestFocus() }
+                ),
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            Spacer(Modifier.height(10.dp))
+
+            OutlinedTextField(
+                value = password,
+                onValueChange = { password = it },
+                label = { Text("Password") },
+                singleLine = true,
+                enabled = !isLoading,
+                visualTransformation = PasswordVisualTransformation(),
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Password,
+                    imeAction = ImeAction.Done
+                ),
+                keyboardActions = KeyboardActions(
+                    onDone = { submit() }
+                ),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .focusRequester(passwordFocus)
+            )
+
+            Spacer(Modifier.height(10.dp))
+
+            Text(
+                text = "Server: $baseUrl",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+
+            Spacer(Modifier.height(16.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                if (isLoading) {
-                    CircularProgressIndicator(
-                        strokeWidth = 2.dp,
-                        modifier = Modifier.size(18.dp)
-                    )
-                    Spacer(Modifier.width(8.dp))
-                    Text("Please wait")
-                } else {
-                    Text(if (mode == AuthMode.Login) "Login" else "Register")
+                Button(
+                    onClick = { submit() },
+                    enabled = !isLoading
+                ) {
+                    if (isLoading) {
+                        CircularProgressIndicator(
+                            strokeWidth = 2.dp,
+                            modifier = Modifier.size(18.dp)
+                        )
+                        Spacer(Modifier.width(8.dp))
+                        Text("Please wait")
+                    } else {
+                        Text(if (mode == AuthMode.Login) "Login" else "Register")
+                    }
+                }
+
+                TextButton(
+                    onClick = onOpenSettings,
+                    enabled = !isLoading
+                ) {
+                    Text("Server settings")
                 }
             }
 
-            TextButton(
-                onClick = onOpenSettings,
-                enabled = !isLoading
-            ) {
-                Text("Server settings")
+            Spacer(Modifier.height(12.dp))
+
+            if (state is LoginUiState.Error) {
+                Text(
+                    text = state.message,
+                    color = MaterialTheme.colorScheme.error
+                )
             }
-        }
-
-        Spacer(Modifier.height(12.dp))
-
-        if (state is LoginUiState.Error) {
-            Text(
-                text = state.message,
-                color = MaterialTheme.colorScheme.error
-            )
         }
     }
 }
