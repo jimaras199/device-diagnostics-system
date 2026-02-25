@@ -68,9 +68,9 @@ fun DevicesScreen(
                 }
 
                 is DevicesUiState.Error -> {
-                    Text(
-                        text = "Error: ${state.message}",
-                        modifier = Modifier.padding(12.dp)
+                    com.jimaras199.devicediagnostics.ui.components.ErrorState(
+                        message = state.message,
+                        onRetry = onRefresh
                     )
                 }
 
