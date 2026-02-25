@@ -75,16 +75,25 @@ fun DevicesScreen(
                 }
 
                 is DevicesUiState.Success -> {
-                    LazyColumn(
-                        modifier = Modifier.fillMaxSize(),
-                        contentPadding = PaddingValues(12.dp),
-                        verticalArrangement = Arrangement.spacedBy(10.dp)
-                    ) {
-                        items(state.devices) { device ->
-                            DeviceRow(
-                                device = device,
-                                onClick = { onDeviceClick(device.id, device.name) }
-                            )
+                    if (state.devices.isEmpty()) {
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(text = "No devices yet")
+                        }
+                    } else {
+                        LazyColumn(
+                            modifier = Modifier.fillMaxSize(),
+                            contentPadding = PaddingValues(12.dp),
+                            verticalArrangement = Arrangement.spacedBy(10.dp)
+                        ) {
+                            items(state.devices) { device ->
+                                DeviceRow(
+                                    device = device,
+                                    onClick = { onDeviceClick(device.id, device.name) }
+                                )
+                            }
                         }
                     }
                 }
