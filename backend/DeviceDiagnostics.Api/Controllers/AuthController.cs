@@ -1,6 +1,4 @@
-﻿using System.Security.Cryptography;
-using System.Text;
-using DeviceDiagnostics.Api.Contracts.Auth;
+﻿using DeviceDiagnostics.Api.Contracts.Auth;
 using DeviceDiagnostics.Api.Domain;
 using DeviceDiagnostics.Api.Infrastructure;
 using Microsoft.AspNetCore.Identity;
@@ -56,16 +54,26 @@ public class AuthController : ControllerBase
 
         var user = await _db.Users.FirstOrDefaultAsync(u => u.Email == email, ct);
         if (user is null)
-            return Unauthorized(new ProblemDetails { Title = "Unauthorized", Status = 401, Detail = "Invalid credentials." });
+            return Unauthorized(new ProblemDetails
+            {
+                Title = "Unauthorized",
+                Status = StatusCodes.Status401Unauthorized,
+                Detail = "Invalid credentials."
+            });
 
         var verify = _hasher.VerifyHashedPassword(user, user.PasswordHash, req.Password);
 
         if (verify == PasswordVerificationResult.Failed)
         {
-            user.PasswordHash = _hasher.HashPassword(user, req.Password);
-            await _db.SaveChangesAsync(ct);
+            return Unauthorized(new ProblemDetails
+            {
+                Title = "Unauthorized",
+                Status = StatusCodes.Status401Unauthorized,
+                Detail = "Invalid credentials."
+            });
         }
-        else if (verify == PasswordVerificationResult.SuccessRehashNeeded)
+
+        if (verify == PasswordVerificationResult.SuccessRehashNeeded)
         {
             user.PasswordHash = _hasher.HashPassword(user, req.Password);
             await _db.SaveChangesAsync(ct);
