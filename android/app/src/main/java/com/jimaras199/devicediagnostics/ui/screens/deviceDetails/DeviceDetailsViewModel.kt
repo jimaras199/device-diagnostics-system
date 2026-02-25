@@ -7,6 +7,8 @@ import com.jimaras199.devicediagnostics.data.repository.DevicesRepository
 import com.jimaras199.devicediagnostics.data.repository.EventsRepository
 import com.jimaras199.devicediagnostics.data.repository.TelemetryRepository
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -34,10 +36,17 @@ class DeviceDetailsViewModel(
         viewModelScope.launch {
             try {
                 val data = withContext(Dispatchers.IO) {
-                    val device = devicesRepo.getDevice(deviceId)
-                    val telemetry = telemetryRepo.getTelemetry(deviceId)
-                    val events = eventsRepo.getEvents(deviceId)
-                    DeviceDetailsData(device, telemetry, events)
+                    coroutineScope {
+                        val deviceDeferred = async { devicesRepo.getDevice(deviceId) }
+                        val telemetryDeferred = async { telemetryRepo.getTelemetry(deviceId) }
+                        val eventsDeferred = async { eventsRepo.getEvents(deviceId) }
+
+                        DeviceDetailsData(
+                            device = deviceDeferred.await(),
+                            telemetry = telemetryDeferred.await(),
+                            events = eventsDeferred.await()
+                        )
+                    }
                 }
 
                 _uiState.value = DeviceDetailsUiState.Success(data)
