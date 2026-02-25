@@ -11,8 +11,11 @@ import androidx.compose.runtime.rememberCoroutineScope
 import kotlinx.coroutines.launch
 
 @Composable
-fun DeviceDetailsRoute(container: AppContainer, deviceId: Int) {
-
+fun DeviceDetailsRoute(
+    container: AppContainer,
+    deviceId: Int,
+    onBack: () -> Unit
+) {
     val vm: DeviceDetailsViewModel = viewModel(
         factory = DeviceDetailsViewModelFactory(
             container.devicesRepository,
@@ -27,5 +30,11 @@ fun DeviceDetailsRoute(container: AppContainer, deviceId: Int) {
     }
 
     val scope = rememberCoroutineScope()
-    DeviceDetailsScreen(state = state, onRetry = { vm.load(deviceId)}, onLogout = { scope.launch { container.authRepository.logout() } })
+
+    DeviceDetailsScreen(
+        state = state,
+        onRetry = { vm.load(deviceId) },
+        onLogout = { scope.launch { container.authRepository.logout() } },
+        onBack = onBack
+    )
 }

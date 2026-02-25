@@ -53,7 +53,11 @@ fun AppNavHost(container: AppContainer) {
             arguments = listOf(navArgument("deviceId") { type = NavType.IntType })
         ) { backStackEntry ->
             val id = backStackEntry.arguments?.getInt("deviceId") ?: 0
-            DeviceDetailsRoute(container = container, deviceId = id)
+            DeviceDetailsRoute(
+                container = container,
+                deviceId = id,
+                onBack = { navController.popBackStack() }
+            )
         }
 
         composable(Routes.SETTINGS) {

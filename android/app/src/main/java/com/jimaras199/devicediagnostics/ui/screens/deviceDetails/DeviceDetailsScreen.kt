@@ -31,10 +31,21 @@ import com.jimaras199.devicediagnostics.ui.formatters.MetricsUiFormatter
 fun DeviceDetailsScreen(
     state: DeviceDetailsUiState,
     onRetry: () -> Unit,
-    onLogout: () -> Unit
+    onLogout: () -> Unit,
+    onBack: () -> Unit
 ) {
     Scaffold(
-        topBar = { DevicesTopBar(title = "Device Details", onLogout = onLogout, showDemoButton = false,demoButtonEnabled = false,onLoadDemo = {}) }
+        topBar = {
+            DevicesTopBar(
+                title = "Device Details",
+                onLogout = onLogout,
+                showDemoButton = false,
+                demoButtonEnabled = false,
+                onLoadDemo = {},
+                showBack = true,
+                onBack = onBack
+            )
+        }
     ) { padding ->
         when (state) {
             DeviceDetailsUiState.Loading -> {
