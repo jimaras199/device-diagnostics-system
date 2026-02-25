@@ -2,6 +2,7 @@
 using DeviceDiagnostics.Api.Infrastructure;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace DeviceDiagnostics.Api.Controllers;
 
@@ -11,8 +12,26 @@ namespace DeviceDiagnostics.Api.Controllers;
 public class DemoController : ControllerBase
 {
     private readonly DemoSeeder _seeder;
+    private readonly AppDbContext _db;
 
-    public DemoController(DemoSeeder seeder) => _seeder = seeder;
+    public DemoController(DemoSeeder seeder, AppDbContext db)
+    {
+        _seeder = seeder;
+        _db = db;
+    }
+
+    [HttpGet("status")]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(DemoStatusResponse))]
+    public async Task<ActionResult<DemoStatusResponse>> Status(CancellationToken ct)
+    {
+        var userId = User.GetUserId();
+
+        var seeded = await _db.Devices
+            .AsNoTracking()
+            .AnyAsync(d => d.OwnerUserId == userId && d.IsDemo, ct);
+
+        return Ok(new DemoStatusResponse { Seeded = seeded });
+    }
 
     [HttpPost("seed")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(DemoSeedResponse))]
