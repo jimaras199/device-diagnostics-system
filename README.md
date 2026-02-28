@@ -194,3 +194,11 @@ Swagger documentation available at:
 * Structured error handling
 * Interceptor-based networking
 * State-driven UI rendering
+* 
+## Screenshots
+
+### Devices Dashboard
+![Devices Dashboard](docs/screenshots/dashboard.jpg)
+
+### Device Details
+![Device Details](docs/screenshots/device-details.jpg)
