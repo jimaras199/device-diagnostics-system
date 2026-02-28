@@ -2,7 +2,7 @@ package com.jimaras199.devicediagnostics.ui.util
 
 import java.time.LocalDateTime
 import java.time.OffsetDateTime
-import java.time.ZoneId
+import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 
@@ -15,7 +15,7 @@ fun formatUtcTimestamp(utc: String): String {
     } catch (_: Exception) {
         try {
             LocalDateTime.parse(utc)
-                .atZone(ZoneId.systemDefault())
+                .atOffset(ZoneOffset.UTC)
                 .format(outputFormatter)
         } catch (_: Exception) {
             utc

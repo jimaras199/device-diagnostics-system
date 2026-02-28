@@ -4,5 +4,5 @@ data class DeviceDto(
     val id: Int,
     val name: String,
     val model: String?,
-    val lastSeen: String
+    val lastSeenUtc: String
 )

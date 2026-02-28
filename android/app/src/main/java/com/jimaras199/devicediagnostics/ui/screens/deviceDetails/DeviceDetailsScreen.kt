@@ -91,7 +91,7 @@ fun DeviceDetailsScreen(
 
                                 val subtitleParts = buildList {
                                     d.model?.takeIf { it.isNotBlank() }?.let { add(it) }
-                                    add("Last seen: ${formatUtcTimestamp(d.lastSeen)}")
+                                    add("Last seen: ${formatUtcTimestamp(d.lastSeenUtc)}")
                                 }
 
                                 Text(
