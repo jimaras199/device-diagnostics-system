@@ -1,9 +1,14 @@
 package com.jimaras199.devicediagnostics.ui.navigation
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -19,6 +24,14 @@ import com.jimaras199.devicediagnostics.ui.screens.settings.ServerSettingsRoute
 fun AppNavHost(container: AppContainer) {
     val navController = rememberNavController()
     val token by container.tokenState.collectAsState()
+    val tokenLoaded by container.tokenLoaded.collectAsState()
+
+    if (!tokenLoaded) {
+        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            CircularProgressIndicator()
+        }
+        return
+    }
 
     LaunchedEffect(token) {
         val target = if (token == null) Routes.LOGIN else Routes.DEVICES

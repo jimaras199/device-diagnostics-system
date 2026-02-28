@@ -28,6 +28,8 @@ class AppContainer(context: Context) {
     private val _tokenState = MutableStateFlow<String?>(null)
     val tokenState: StateFlow<String?> = _tokenState.asStateFlow()
     val serverSettingsStore = ServerSettingsStore(context)
+    private val _tokenLoaded = MutableStateFlow(false)
+    val tokenLoaded: StateFlow<Boolean> = _tokenLoaded.asStateFlow()
     private val _baseUrl = MutableStateFlow("http://10.0.2.2:5275/")
     val baseUrl: StateFlow<String> = _baseUrl.asStateFlow()
     val tokenProvider: TokenProvider = CachedTokenProvider(tokenState)
@@ -67,6 +69,7 @@ class AppContainer(context: Context) {
         appScope.launch {
             tokenStore.tokenFlow.collect { t ->
                 _tokenState.value = t
+                _tokenLoaded.value = true
             }
         }
         appScope.launch {
