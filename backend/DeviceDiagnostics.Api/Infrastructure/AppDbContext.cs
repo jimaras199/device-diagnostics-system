@@ -1,5 +1,6 @@
 ﻿using DeviceDiagnostics.Api.Domain;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace DeviceDiagnostics.Api.Infrastructure;
 
@@ -14,6 +15,11 @@ public class AppDbContext : DbContext
     {
         base.OnModelCreating(modelBuilder);
 
+        var utcConverter = new ValueConverter<DateTime, DateTime>(
+            v => v.Kind == DateTimeKind.Utc ? v : DateTime.SpecifyKind(v, DateTimeKind.Utc),
+            v => DateTime.SpecifyKind(v, DateTimeKind.Utc)
+        );
+
         modelBuilder.Entity<AppUser>()
             .HasIndex(u => u.Email)
             .IsUnique();
@@ -24,13 +30,30 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<Telemetry>()
             .HasOne(t => t.Device)
             .WithMany()
-            .HasForeignKey(t => t.DeviceId);
+            .HasForeignKey(e => e.DeviceId);
 
         modelBuilder.Entity<EventLog>()
             .HasOne(e => e.Device)
             .WithMany()
             .HasForeignKey(e => e.DeviceId);
 
-        modelBuilder.Entity<Telemetry>().HasIndex(t => new { t.DeviceId, t.Timestamp });
+        modelBuilder.Entity<Telemetry>()
+            .HasIndex(t => new { t.DeviceId, t.Timestamp });
+
+        modelBuilder.Entity<Device>()
+            .Property(d => d.LastSeen)
+            .HasConversion(utcConverter);
+
+        modelBuilder.Entity<Telemetry>()
+            .Property(t => t.Timestamp)
+            .HasConversion(utcConverter);
+
+        modelBuilder.Entity<EventLog>()
+            .Property(e => e.Timestamp)
+            .HasConversion(utcConverter);
+
+        modelBuilder.Entity<AppUser>()
+            .Property(u => u.CreatedUtc)
+            .HasConversion(utcConverter);
     }
 }

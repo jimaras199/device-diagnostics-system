@@ -10,6 +10,6 @@ public static class DeviceMappings
         Id = d.Id,
         Name = d.Name,
         Model = d.Model,
-        LastSeen = d.LastSeen
+        LastSeenUtc = d.LastSeen
     };
 }
