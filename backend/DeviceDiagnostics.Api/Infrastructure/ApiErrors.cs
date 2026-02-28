@@ -17,4 +17,10 @@ public static class ApiErrors
         Status = StatusCodes.Status409Conflict,
         Detail = detail
     };
+    public static ProblemDetails Unauthorized(string detail) => new()
+    {
+        Title = "Unauthorized",
+        Status = StatusCodes.Status401Unauthorized,
+        Detail = detail
+    };
 }

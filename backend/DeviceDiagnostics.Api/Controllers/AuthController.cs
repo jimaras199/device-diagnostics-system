@@ -54,24 +54,12 @@ public class AuthController : ControllerBase
 
         var user = await _db.Users.FirstOrDefaultAsync(u => u.Email == email, ct);
         if (user is null)
-            return Unauthorized(new ProblemDetails
-            {
-                Title = "Unauthorized",
-                Status = StatusCodes.Status401Unauthorized,
-                Detail = "Invalid credentials."
-            });
+            return Unauthorized(ApiErrors.Unauthorized("Invalid credentials."));
 
         var verify = _hasher.VerifyHashedPassword(user, user.PasswordHash, req.Password);
 
         if (verify == PasswordVerificationResult.Failed)
-        {
-            return Unauthorized(new ProblemDetails
-            {
-                Title = "Unauthorized",
-                Status = StatusCodes.Status401Unauthorized,
-                Detail = "Invalid credentials."
-            });
-        }
+            return Unauthorized(ApiErrors.Unauthorized("Invalid credentials."));
 
         if (verify == PasswordVerificationResult.SuccessRehashNeeded)
         {
