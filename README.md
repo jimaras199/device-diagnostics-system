@@ -194,7 +194,7 @@ Swagger documentation available at:
 * Structured error handling
 * Interceptor-based networking
 * State-driven UI rendering
-* 
+  
 ## Screenshots
 
 ### Devices Dashboard
