@@ -202,3 +202,7 @@ Swagger documentation available at:
 
 ### Device Details
 ![Device Details](docs/screenshots/device-details.jpg)
+
+## Architecture
+
+![High-Level Architecture](docs/diagram/Architecture.png)
