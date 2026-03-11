@@ -7,6 +7,28 @@ This project demonstrates end-to-end API design, secure authentication flow, and
 
 ---
 
+# What This Project Demonstrates
+
+* End-to-end system design
+* Secure multi-user API
+* Clean Android architecture with Compose
+* Structured error handling
+* Interceptor-based networking
+* State-driven UI rendering
+  
+## Screenshots
+
+### Devices Dashboard
+![Devices Dashboard](docs/screenshots/dashboard.jpg)
+
+### Device Details
+![Device Details](docs/screenshots/device-details.jpg)
+
+## Architecture
+
+![High-Level Architecture](docs/diagram/Architecture.png)
+
+
 ## Tech Stack
 
 ### Backend
@@ -51,7 +73,7 @@ This project demonstrates end-to-end API design, secure authentication flow, and
 ````
 ---
 
-# 🚀 Quickstart
+# Quickstart
 
 ## 1. Run Backend
 
@@ -183,26 +205,3 @@ Swagger documentation available at:
 
 * **Backend-side dashboard aggregation**
   Keeps mobile client thin and avoids heavy client-side grouping.
-
----
-
-# What This Project Demonstrates
-
-* End-to-end system design
-* Secure multi-user API
-* Clean Android architecture with Compose
-* Structured error handling
-* Interceptor-based networking
-* State-driven UI rendering
-* 
-## Screenshots
-
-### Devices Dashboard
-![Devices Dashboard](docs/screenshots/dashboard.jpg)
-
-### Device Details
-![Device Details](docs/screenshots/device-details.jpg)
-
-## Architecture
-
-![High-Level Architecture](docs/diagram/Architecture.png)
