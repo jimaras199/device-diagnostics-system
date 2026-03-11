@@ -76,7 +76,8 @@
                         _events.tryEmit(
                             DevicesUiEvent.ShowSnackbar(
                                 message = msg,
-                                actionLabel = "Retry"
+                                actionLabel = "Retry",
+                                retryOnAction = true
                             )
                         )
                     } else {

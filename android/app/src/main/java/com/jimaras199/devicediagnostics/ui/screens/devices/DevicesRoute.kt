@@ -39,7 +39,7 @@ fun DevicesRoute(
                     )
 
                     if (
-                        event.actionLabel == "Retry" &&
+                        event.retryOnAction &&
                         result == SnackbarResult.ActionPerformed
                     ) {
                         vm.refresh()
