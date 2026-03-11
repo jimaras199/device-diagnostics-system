@@ -73,7 +73,12 @@
 
                     if (now is DevicesUiState.Success) {
                         _uiState.value = now.copy(isRefreshing = false)
-                        _events.tryEmit(DevicesUiEvent.ShowRefreshError(msg))
+                        _events.tryEmit(
+                            DevicesUiEvent.ShowSnackbar(
+                                message = msg,
+                                actionLabel = "Retry"
+                            )
+                        )
                     } else {
                         _uiState.value = DevicesUiState.Error(msg)
                     }
@@ -93,7 +98,7 @@
                 try {
                     withContext(Dispatchers.IO) { demoRepo.seedDemo() }
 
-                    _events.tryEmit(DevicesUiEvent.ShowMessage("Demo data loaded"))
+                    _events.tryEmit(DevicesUiEvent.ShowSnackbar("Demo data loaded"))
 
                     val uiItems = loadDevices()
                     _uiState.value = DevicesUiState.Success(
@@ -113,14 +118,14 @@
                             isSeedingDemo = false
                         )
 
-                        _events.tryEmit(DevicesUiEvent.ShowMessage("Demo already loaded"))
+                        _events.tryEmit(DevicesUiEvent.ShowSnackbar("Demo already loaded"))
                         return@launch
                     }
 
                     val msg = NetworkErrorMapper.message(ex, NetworkErrorMapper.Context.DemoSeed)
                     val now = _uiState.value
                     if (now is DevicesUiState.Success) _uiState.value = now.copy(isSeedingDemo = false)
-                    _events.tryEmit(DevicesUiEvent.ShowMessage(msg))
+                    _events.tryEmit(DevicesUiEvent.ShowSnackbar(msg))
                 }
             }
         }

@@ -32,20 +32,18 @@ fun DevicesRoute(
     LaunchedEffect(vm) {
         vm.events.collect { event ->
             when (event) {
-                is DevicesUiEvent.ShowRefreshError -> {
+                is DevicesUiEvent.ShowSnackbar -> {
                     val result = snackbarHostState.showSnackbar(
-                        message = "Refresh failed",
-                        actionLabel = "Retry"
+                        message = event.message,
+                        actionLabel = event.actionLabel
                     )
-                    if (result == SnackbarResult.ActionPerformed) {
+
+                    if (
+                        event.actionLabel == "Retry" &&
+                        result == SnackbarResult.ActionPerformed
+                    ) {
                         vm.refresh()
                     }
-                }
-
-                is DevicesUiEvent.ShowMessage -> {
-                    snackbarHostState.showSnackbar(
-                        message = event.message
-                    )
                 }
             }
         }
