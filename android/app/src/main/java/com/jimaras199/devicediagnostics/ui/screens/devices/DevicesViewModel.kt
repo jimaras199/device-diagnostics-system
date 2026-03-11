@@ -86,19 +86,18 @@
             }
         }
         fun seedDemo() {
-            val current = _uiState.value
-            if (current is DevicesUiState.Success && current.isSeedingDemo) return
+            val current = _uiState.value as? DevicesUiState.Success ?: return
+            if (current.isSeedingDemo || current.isRefreshing || current.demoSeeded) return
 
-            _uiState.value = when (current) {
-                is DevicesUiState.Success -> current.copy(isSeedingDemo = true)
-                else -> DevicesUiState.Loading
-            }
+            _uiState.value = current.copy(isSeedingDemo = true)
 
             viewModelScope.launch {
                 try {
                     withContext(Dispatchers.IO) { demoRepo.seedDemo() }
 
-                    _events.tryEmit(DevicesUiEvent.ShowSnackbar("Demo data loaded"))
+                    _events.tryEmit(
+                        DevicesUiEvent.ShowSnackbar("Demo data loaded")
+                    )
 
                     val uiItems = loadDevices()
                     _uiState.value = DevicesUiState.Success(
@@ -118,18 +117,21 @@
                             isSeedingDemo = false
                         )
 
-                        _events.tryEmit(DevicesUiEvent.ShowSnackbar("Demo already loaded"))
+                        _events.tryEmit(
+                            DevicesUiEvent.ShowSnackbar("Demo already loaded")
+                        )
                         return@launch
                     }
 
                     val msg = NetworkErrorMapper.message(ex, NetworkErrorMapper.Context.DemoSeed)
-                    val now = _uiState.value
-                    if (now is DevicesUiState.Success) _uiState.value = now.copy(isSeedingDemo = false)
-                    _events.tryEmit(DevicesUiEvent.ShowSnackbar(msg))
+                    _uiState.value = current.copy(isSeedingDemo = false)
+
+                    _events.tryEmit(
+                        DevicesUiEvent.ShowSnackbar(msg)
+                    )
                 }
             }
         }
-
         private suspend fun loadDevices(): List<DeviceListItem> =
             withContext(Dispatchers.IO) {
                 repo.getDevicesDashboard(metricsPerDevice = 5)
