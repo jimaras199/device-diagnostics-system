@@ -1,6 +1,7 @@
 package com.jimaras199.devicediagnostics.settings
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -19,7 +20,7 @@ fun ServerSettingsScreen(
         modifier = Modifier
             .fillMaxSize()
             .padding(24.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
+        verticalArrangement = Arrangement.Center
     ) {
         Text("Server Settings", style = MaterialTheme.typography.titleLarge)
 
