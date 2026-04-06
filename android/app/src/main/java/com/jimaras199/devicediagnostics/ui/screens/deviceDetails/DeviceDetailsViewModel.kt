@@ -18,7 +18,7 @@ import kotlinx.coroutines.withContext
 sealed interface DeviceDetailsUiState {
     data object Loading : DeviceDetailsUiState
     data class Error(val message: String) : DeviceDetailsUiState
-    data class Success(val data: DeviceDetailsData) : DeviceDetailsUiState
+    data class Success(val data: DeviceDetailsUi) : DeviceDetailsUiState
 }
 
 class DeviceDetailsViewModel(
@@ -40,11 +40,15 @@ class DeviceDetailsViewModel(
                         val deviceDeferred = async { devicesRepo.getDevice(deviceId) }
                         val telemetryDeferred = async { telemetryRepo.getTelemetry(deviceId) }
                         val eventsDeferred = async { eventsRepo.getEvents(deviceId) }
+                        val device = deviceDeferred.await()
+                        val telemetry = telemetryDeferred.await()
+                        val events = eventsDeferred.await()
 
-                        DeviceDetailsData(
-                            device = deviceDeferred.await(),
-                            telemetry = telemetryDeferred.await(),
-                            events = eventsDeferred.await()
+                        DeviceDetailsUi(
+                            header = device.toHeaderUi(),
+                            latestMetrics = telemetry.toLatestMetricsUi(),
+                            telemetries = telemetry.toTelemetryItemUiList(),
+                            events = events.toEventItemUiList()
                         )
                     }
                 }

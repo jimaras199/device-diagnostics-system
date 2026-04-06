@@ -18,13 +18,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.jimaras199.devicediagnostics.ui.components.DevicesTopBar
-import com.jimaras199.devicediagnostics.ui.util.formatUtcTimestamp
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.text.font.FontWeight
-import com.jimaras199.devicediagnostics.ui.formatters.MetricsUiFormatter
 
 @Composable
 fun DeviceDetailsScreen(
@@ -64,15 +62,6 @@ fun DeviceDetailsScreen(
 
             is DeviceDetailsUiState.Success -> {
                 val data = state.data
-                val d = data.device
-                val latestPerMetric = data.telemetry
-                    .groupBy { it.metricName }
-                    .mapNotNull { (name, items) ->
-                        val latest = items.maxByOrNull { it.timestampUtc } ?: return@mapNotNull null
-                        MetricsUiFormatter.metricUi(name, latest.value)
-                    }
-                    .sortedBy { it.label.lowercase() }
-
                 LazyColumn(
                     modifier = Modifier.padding(padding).padding(horizontal = 12.dp),
                     verticalArrangement = Arrangement.spacedBy(10.dp)
@@ -85,17 +74,12 @@ fun DeviceDetailsScreen(
                         ) {
                             Column(Modifier.padding(12.dp)) {
                                 Text(
-                                    text = d.name,
+                                    text = data.header.title,
                                     style = MaterialTheme.typography.titleLarge
                                 )
 
-                                val subtitleParts = buildList {
-                                    d.model?.takeIf { it.isNotBlank() }?.let { add(it) }
-                                    add("Last seen: ${formatUtcTimestamp(d.lastSeenUtc)}")
-                                }
-
                                 Text(
-                                    text = subtitleParts.joinToString(" • "),
+                                    text = data.header.subtitle,
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
@@ -107,7 +91,7 @@ fun DeviceDetailsScreen(
                         Text("Latest metrics", style = MaterialTheme.typography.titleMedium)
                     }
 
-                    if (latestPerMetric.isEmpty()) {
+                    if (data.latestMetrics.isEmpty()) {
                         item {
                             Text(
                                 "No metrics yet",
@@ -121,7 +105,7 @@ fun DeviceDetailsScreen(
                                 elevation = CardDefaults.cardElevation(2.dp)
                             ) {
                                 Column(Modifier.padding(12.dp)) {
-                                    latestPerMetric.forEach { m ->
+                                    data.latestMetrics.forEach { m ->
                                         Row(
                                             modifier = Modifier.fillMaxWidth(),
                                             horizontalArrangement = Arrangement.SpaceBetween,
@@ -142,7 +126,7 @@ fun DeviceDetailsScreen(
                         Text("Telemetry", style = MaterialTheme.typography.titleMedium)
                     }
 
-                    if (data.telemetry.isEmpty()) {
+                    if (data.telemetries.isEmpty()) {
                         item {
                             Text(
                                 "No telemetry yet",
@@ -150,7 +134,7 @@ fun DeviceDetailsScreen(
                             )
                         }
                     } else {
-                        items(data.telemetry.take(10)) { t ->
+                        items(data.telemetries.take(10)) { t ->
                             Card(
                                 modifier = Modifier.fillMaxWidth(),
                                 elevation = CardDefaults.cardElevation(2.dp)
@@ -158,27 +142,23 @@ fun DeviceDetailsScreen(
                                 Column(
                                     Modifier.padding(12.dp)
                                 ) {
-                                    val ui = MetricsUiFormatter.metricUi(t.metricName, t.value)
-                                    val label = ui?.label ?: t.metricName
-                                    val valueText = ui?.valueText ?: t.value.toString()
-
                                     Row(
                                         modifier = Modifier.fillMaxWidth(),
                                         horizontalArrangement = Arrangement.SpaceBetween,
                                         verticalAlignment = Alignment.CenterVertically
                                     ) {
                                         Text(
-                                            text = label,
+                                            text = t.label,
                                             style = MaterialTheme.typography.titleSmall
                                         )
                                         Text(
-                                            text = valueText,
+                                            text = t.valueText,
                                             style = MaterialTheme.typography.titleSmall
                                         )
                                     }
 
                                     Text(
-                                        text = formatUtcTimestamp(t.timestampUtc),
+                                        text = t.timestampText,
                                         style = MaterialTheme.typography.bodySmall,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant
                                     )
@@ -202,9 +182,9 @@ fun DeviceDetailsScreen(
                         }
                     } else {
                         items(data.events.take(10)) { e ->
-                            val (bgColor, contentColor) = when (e.level.lowercase()) {
-                                "error" -> Color(0xFFFFEBEE) to Color(0xFFB00020)
-                                "warning" -> Color(0xFFFFF8E1) to Color(0xFFEF6C00)
+                            val (bgColor, contentColor) = when (e.levelStyle) {
+                                EventLevelUi.ERROR -> Color(0xFFFFEBEE) to Color(0xFFB00020)
+                                EventLevelUi.WARNING -> Color(0xFFFFF8E1) to Color(0xFFEF6C00)
                                 else -> MaterialTheme.colorScheme.primaryContainer to
                                         MaterialTheme.colorScheme.onPrimaryContainer
                             }
@@ -233,7 +213,7 @@ fun DeviceDetailsScreen(
                                     modifier = Modifier.fillMaxWidth()
                                 ) {
                                     Text(
-                                        text = e.level.uppercase(),
+                                        text = e.levelText,
                                         color = contentColor,
                                         style = MaterialTheme.typography.labelSmall,
                                         modifier = Modifier
@@ -242,7 +222,7 @@ fun DeviceDetailsScreen(
                                     )
 
                                     Text(
-                                        text = formatUtcTimestamp(e.timestampUtc),
+                                        text = e.timestampText,
                                         style = MaterialTheme.typography.bodySmall,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant
                                     )
