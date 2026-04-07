@@ -1,4 +1,4 @@
-package com.jimaras199.devicediagnostics.settings
+package com.jimaras199.devicediagnostics.ui.screens.serverSettings
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Arrangement

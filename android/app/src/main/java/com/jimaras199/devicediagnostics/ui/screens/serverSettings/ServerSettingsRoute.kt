@@ -5,8 +5,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.jimaras199.devicediagnostics.di.AppContainer
-import com.jimaras199.devicediagnostics.settings.ServerSettingsScreen
-import com.jimaras199.devicediagnostics.settings.ServerSettingsViewModel
+import com.jimaras199.devicediagnostics.ui.screens.serverSettings.ServerSettingsScreen
+import com.jimaras199.devicediagnostics.ui.screens.serverSettings.ServerSettingsViewModel
 
 @Composable
 fun ServerSettingsRoute(
