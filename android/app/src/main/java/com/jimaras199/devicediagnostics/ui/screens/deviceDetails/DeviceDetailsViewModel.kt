@@ -2,7 +2,7 @@ package com.jimaras199.devicediagnostics.ui.screens.deviceDetails
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.jimaras199.devicediagnostics.data.network.NetworkErrorMapper
+import com.jimaras199.devicediagnostics.ui.error.NetworkErrorMapper
 import com.jimaras199.devicediagnostics.data.repository.DevicesRepository
 import com.jimaras199.devicediagnostics.data.repository.EventsRepository
 import com.jimaras199.devicediagnostics.data.repository.TelemetryRepository

@@ -3,7 +3,7 @@ package com.jimaras199.devicediagnostics.ui.screens.login
 import android.util.Patterns
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.jimaras199.devicediagnostics.data.network.NetworkErrorMapper
+import com.jimaras199.devicediagnostics.ui.error.NetworkErrorMapper
 import com.jimaras199.devicediagnostics.data.repository.AuthRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

@@ -1,4 +1,4 @@
-package com.jimaras199.devicediagnostics.data.network
+package com.jimaras199.devicediagnostics.ui.error
 
 import retrofit2.HttpException
 import java.io.IOException
