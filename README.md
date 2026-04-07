@@ -1,7 +1,7 @@
 
 # Device Diagnostics System
 
-Full-stack device diagnostics system with JWT authentication, telemetry ingestion, and Android dashboard client.
+Full-stack client–server system for device diagnostics, featuring a JWT-secured ASP.NET Core API and a Kotlin Android client with state-driven UI and structured networking.
 
 This project demonstrates end-to-end API design, secure authentication flow, and modern Android architecture using Jetpack Compose.
 
@@ -9,9 +9,9 @@ This project demonstrates end-to-end API design, secure authentication flow, and
 
 # What This Project Demonstrates
 
-* End-to-end system design
+* End-to-end client–server interaction (Android → API → database)
 * Secure multi-user API
-* Clean Android architecture with Compose
+* Layered Android architecture (UI models, ViewModel, repositories)
 * Structured error handling
 * Interceptor-based networking
 * State-driven UI rendering
@@ -25,6 +25,11 @@ This project demonstrates end-to-end API design, secure authentication flow, and
 ![Device Details](docs/screenshots/device-details.jpg)
 
 ## Architecture
+The system follows a client–server architecture:
+
+- The backend exposes REST endpoints secured with JWT authentication
+- The Android client consumes the API via Retrofit and manages state using ViewModel + StateFlow
+- Data transformation is handled through UI models, keeping the UI layer free of raw API structures
 
 ![High-Level Architecture](docs/diagram/Architecture.png)
 
@@ -60,7 +65,9 @@ This project demonstrates end-to-end API design, secure authentication flow, and
 - Token-driven navigation (auth-gated routing)
 - Authorization header injected via OkHttp interceptor
 - Automatic logout on HTTP 401
-- Repository pattern + ViewModel state management
+- Repository pattern with ViewModel-driven UI state
+- DTO → UI model mapping to isolate presentation layer from API structures
+- Stateless UI rendering based on immutable state
 - Configurable backend host via in-app settings
 
 ---
@@ -124,7 +131,7 @@ http://10.0.2.2:5275
 
 ---
 
-# 🔐 Authentication Flow
+# Authentication Flow
 
 * Register new user
 * Login returns JWT
@@ -139,9 +146,9 @@ Authorization: Bearer <token>
 
 ---
 
-# 📊 Demo Flow
+# Demo Flow
 
-After login:
+The system includes a demo mode to simulate real-world device activity
 
 1. Tap **Demo data**
 2. Backend seeds random devices, telemetry, and events
@@ -195,7 +202,7 @@ Swagger documentation available at:
 # Design Decisions
 
 * **JWT only (no refresh tokens)**
-  Chosen for simplicity and clarity in an MVP context.
+  Chosen to keep the authentication flow simple and transparent for demonstration purposes.
 
 * **No offline caching**
   Focus is API interaction and state-driven UI flow.
