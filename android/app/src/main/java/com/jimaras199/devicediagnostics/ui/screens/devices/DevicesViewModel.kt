@@ -2,7 +2,6 @@
 
     import androidx.lifecycle.ViewModel
     import androidx.lifecycle.viewModelScope
-    import com.jimaras199.devicediagnostics.data.model.toDeviceListItem
     import com.jimaras199.devicediagnostics.data.network.NetworkErrorMapper
     import com.jimaras199.devicediagnostics.data.repository.DashboardRepository
     import com.jimaras199.devicediagnostics.data.repository.DemoRepository

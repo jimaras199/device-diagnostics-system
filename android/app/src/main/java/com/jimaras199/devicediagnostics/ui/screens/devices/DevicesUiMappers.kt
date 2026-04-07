@@ -1,5 +1,6 @@
-package com.jimaras199.devicediagnostics.data.model
+package com.jimaras199.devicediagnostics.ui.screens.devices
 
+import com.jimaras199.devicediagnostics.data.model.DeviceDashboardDto
 import com.jimaras199.devicediagnostics.ui.formatters.MetricsUiFormatter
 import com.jimaras199.devicediagnostics.ui.models.DeviceListItem
 
