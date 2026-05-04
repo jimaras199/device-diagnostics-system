@@ -34,10 +34,21 @@ class LoginViewModel(
             _uiState.value = LoginUiState.Error("Please enter a valid email.")
             return
         }
-        if (password.length < 6) {
-            _uiState.value = LoginUiState.Error("Password must be at least 6 characters.")
-            return
+        when (mode) {
+            AuthMode.Login -> {
+                if (password.isBlank()) {
+                    _uiState.value = LoginUiState.Error("Password must not be empty.")
+                    return
+                }
+            }
+            AuthMode.Register -> {
+                if (password.length < 6) {
+                    _uiState.value = LoginUiState.Error("Password must be at least 6 characters.")
+                    return
+                }
+            }
         }
+
 
         _uiState.value = LoginUiState.Loading
 
