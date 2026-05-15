@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
 using DeviceDiagnostics.Api.Contracts.Responses;
+using DeviceDiagnostics.Api.Services;
 
 namespace DeviceDiagnostics.Api.Controllers;
 
@@ -13,9 +14,12 @@ namespace DeviceDiagnostics.Api.Controllers;
 [Route("devices")]
 public class DevicesController : ControllerBase
 {
-    private readonly AppDbContext _db;
+    private readonly DevicesService _devicesService;
 
-    public DevicesController(AppDbContext db) => _db = db;
+    public DevicesController(DevicesService devicesService)
+    {
+        _devicesService = devicesService;
+    }
 
 
     [HttpGet]
@@ -24,12 +28,7 @@ public class DevicesController : ControllerBase
     {
         var userId = User.GetUserId();
 
-        var devices = await _db.Devices
-            .AsNoTracking()
-            .Where(d => d.OwnerUserId == userId)
-            .OrderByDescending(d => d.LastSeen)
-            .Select(d => d.ToResponse())
-            .ToListAsync(ct);
+        var devices = await _devicesService.GetDevicesAsync(userId, ct);
 
         return Ok(devices);
     }
@@ -41,19 +40,9 @@ public class DevicesController : ControllerBase
     {
         var userId = User.GetUserId();
 
-        var device = new Device
-        {
-            OwnerUserId = userId,
-            Name = request.Name.Trim(),
-            Model = string.IsNullOrWhiteSpace(request.Model) ? null : request.Model.Trim(),
-            LastSeen = DateTime.UtcNow
-        };
+        var response = await _devicesService.CreateDeviceAsync(userId, request, ct);
 
-        _db.Devices.Add(device);
-        await _db.SaveChangesAsync(ct);
-
-        var response = device.ToResponse();
-        return Created($"/devices/{device.Id}", response);
+        return Created($"/devices/{response.Id}", response);
     }
 
     [HttpGet("{id:int}")]
@@ -63,11 +52,7 @@ public class DevicesController : ControllerBase
     {
         var userId = User.GetUserId();
 
-        var device = await _db.Devices
-            .AsNoTracking()
-            .Where(d => d.Id == id && d.OwnerUserId == userId)
-            .Select(d => d.ToResponse())
-            .FirstOrDefaultAsync(ct);
+        var device = await _devicesService.GetDeviceByIdAsync(userId, id, ct);
 
         if (device is null)
             return NotFound(ApiErrors.NotFound($"Device {id} was not found."));

@@ -9,12 +9,14 @@ using System.Text;
 using Microsoft.OpenApi.Models;
 using DeviceDiagnostics.Api.Domain;
 using Microsoft.AspNetCore.Identity;
+using DeviceDiagnostics.Api.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddScoped<DemoSeeder>();
+builder.Services.AddScoped<DevicesService>();
 
 builder.Services.AddSwaggerGen(c =>
 {
