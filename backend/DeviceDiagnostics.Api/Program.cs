@@ -17,6 +17,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddScoped<DemoSeeder>();
 builder.Services.AddScoped<DevicesService>();
+builder.Services.AddScoped<TelemetryService>();
 
 builder.Services.AddSwaggerGen(c =>
 {
