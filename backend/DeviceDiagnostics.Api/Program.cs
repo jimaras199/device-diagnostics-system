@@ -19,6 +19,7 @@ builder.Services.AddScoped<DemoSeeder>();
 builder.Services.AddScoped<DevicesService>();
 builder.Services.AddScoped<TelemetryService>();
 builder.Services.AddScoped<EventsService>();
+builder.Services.AddScoped<DashboardService>();
 
 builder.Services.AddSwaggerGen(c =>
 {
