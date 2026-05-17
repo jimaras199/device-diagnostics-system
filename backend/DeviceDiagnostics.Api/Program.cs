@@ -18,6 +18,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddScoped<DemoSeeder>();
 builder.Services.AddScoped<DevicesService>();
 builder.Services.AddScoped<TelemetryService>();
+builder.Services.AddScoped<EventsService>();
 
 builder.Services.AddSwaggerGen(c =>
 {
