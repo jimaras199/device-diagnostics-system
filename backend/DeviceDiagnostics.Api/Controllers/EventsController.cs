@@ -15,10 +15,12 @@ namespace DeviceDiagnostics.Api.Controllers;
 public class EventsController : ControllerBase
 {
     private readonly EventsService _eventsService;
+    private readonly DevicesService _devicesService;
 
-    public EventsController(EventsService eventsService)
+    public EventsController(EventsService eventsService, DevicesService devicesService)
     {
         _eventsService = eventsService;
+        _devicesService = devicesService;
     }
 
     [HttpPost]
@@ -29,7 +31,7 @@ public class EventsController : ControllerBase
     {
         var userId = User.GetUserId();
 
-        var deviceOwned = await _eventsService.DeviceBelongsToUserAsync(
+        var deviceOwned = await _devicesService.DeviceExistsForUserAsync(
             userId,
             deviceId,
             ct);
@@ -53,7 +55,7 @@ public class EventsController : ControllerBase
     {
         var userId = User.GetUserId();
 
-        var deviceOwned = await _eventsService.DeviceBelongsToUserAsync(
+        var deviceOwned = await _devicesService.DeviceExistsForUserAsync(
             userId,
             deviceId,
             ct);

@@ -15,10 +15,12 @@ namespace DeviceDiagnostics.Api.Controllers;
 public class TelemetryController : ControllerBase
 {
     private readonly TelemetryService _telemetryService;
+    private readonly DevicesService _devicesService;
 
-    public TelemetryController(TelemetryService telemetryService)
+    public TelemetryController(TelemetryService telemetryService, DevicesService devicesService)
     {
         _telemetryService = telemetryService;
+        _devicesService = devicesService;
     }
 
     [HttpPost]
@@ -29,7 +31,7 @@ public class TelemetryController : ControllerBase
     {
         var userId = User.GetUserId();
 
-        var deviceOwned = await _telemetryService.DeviceBelongsToUserAsync(userId, deviceId, ct);
+        var deviceOwned = await _devicesService.DeviceExistsForUserAsync(userId, deviceId, ct);
 
         if (!deviceOwned)
             return NotFound(ApiErrors.NotFound($"Device {deviceId} was not found."));
@@ -54,7 +56,7 @@ public class TelemetryController : ControllerBase
     {
         var userId = User.GetUserId();
 
-        var deviceOwned = await _telemetryService.DeviceBelongsToUserAsync(userId, deviceId, ct);
+        var deviceOwned = await _devicesService.DeviceExistsForUserAsync(userId, deviceId, ct);
 
         if (!deviceOwned)
             return NotFound(ApiErrors.NotFound($"Device {deviceId} was not found."));

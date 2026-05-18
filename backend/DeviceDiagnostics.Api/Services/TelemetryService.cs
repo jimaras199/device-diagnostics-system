@@ -9,20 +9,12 @@ namespace DeviceDiagnostics.Api.Services;
 public class TelemetryService
 {
     private readonly AppDbContext _db;
+    private readonly DevicesService _devicesService;
 
-    public TelemetryService(AppDbContext db)
+    public TelemetryService(AppDbContext db, DevicesService devicesService)
     {
         _db = db;
-    }
-
-    public async Task<bool> DeviceBelongsToUserAsync(
-        int userId,
-        int deviceId,
-        CancellationToken ct)
-    {
-        return await _db.Devices
-            .AsNoTracking()
-            .AnyAsync(d => d.Id == deviceId && d.OwnerUserId == userId, ct);
+        _devicesService = devicesService;
     }
 
     public async Task<TelemetryResponse> CreateTelemetryAsync(

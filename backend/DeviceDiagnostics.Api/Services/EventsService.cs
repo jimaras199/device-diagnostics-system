@@ -9,21 +9,15 @@ namespace DeviceDiagnostics.Api.Services;
 public class EventsService
 {
     private readonly AppDbContext _db;
+    private readonly DevicesService _devicesService;
 
-    public EventsService(AppDbContext db)
+    public EventsService(AppDbContext db, DevicesService devicesService)
     {
         _db = db;
+        _devicesService = devicesService;
     }
 
-    public async Task<bool> DeviceBelongsToUserAsync(
-        int userId,
-        int deviceId,
-        CancellationToken ct)
-    {
-        return await _db.Devices
-            .AsNoTracking()
-            .AnyAsync(d => d.Id == deviceId && d.OwnerUserId == userId, ct);
-    }
+    
 
     public async Task<EventResponse> CreateEventAsync(
         int userId,

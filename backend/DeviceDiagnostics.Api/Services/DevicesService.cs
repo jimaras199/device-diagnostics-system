@@ -15,6 +15,16 @@ public class DevicesService
         _db = db;
     }
 
+    public async Task<bool> DeviceExistsForUserAsync(
+    int userId,
+    int deviceId,
+    CancellationToken ct)
+    {
+        return await _db.Devices
+            .AsNoTracking()
+            .AnyAsync(d => d.Id == deviceId && d.OwnerUserId == userId, ct);
+    }
+
     public async Task<List<DeviceResponse>> GetDevicesAsync(int userId, CancellationToken ct)
     {
         return await _db.Devices
